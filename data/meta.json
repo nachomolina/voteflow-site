@@ -1,0 +1,1801 @@
+{
+ "generated": "2026-11-22T07:28:03+00:00",
+ "version": "0.1.0",
+ "elections": {
+  "congreso-1977-06": {
+   "id": "congreso-1977-06",
+   "date": "1977-06-15",
+   "short": "1977"
+  },
+  "congreso-1979-03": {
+   "id": "congreso-1979-03",
+   "date": "1979-03-01",
+   "short": "1979"
+  },
+  "congreso-1982-10": {
+   "id": "congreso-1982-10",
+   "date": "1982-10-28",
+   "short": "1982"
+  },
+  "congreso-1986-06": {
+   "id": "congreso-1986-06",
+   "date": "1986-06-22",
+   "short": "1986"
+  },
+  "congreso-1989-10": {
+   "id": "congreso-1989-10",
+   "date": "1989-10-29",
+   "short": "1989"
+  },
+  "congreso-1993-06": {
+   "id": "congreso-1993-06",
+   "date": "1993-06-06",
+   "short": "1993"
+  },
+  "congreso-1996-03": {
+   "id": "congreso-1996-03",
+   "date": "1996-03-03",
+   "short": "1996"
+  },
+  "congreso-2000-03": {
+   "id": "congreso-2000-03",
+   "date": "2000-03-12",
+   "short": "2000"
+  },
+  "congreso-2004-03": {
+   "id": "congreso-2004-03",
+   "date": "2004-03-14",
+   "short": "2004"
+  },
+  "congreso-2008-03": {
+   "id": "congreso-2008-03",
+   "date": "2008-03-09",
+   "short": "2008"
+  },
+  "congreso-2011-11": {
+   "id": "congreso-2011-11",
+   "date": "2011-11-20",
+   "short": "2011"
+  },
+  "congreso-2015-12": {
+   "id": "congreso-2015-12",
+   "date": "2015-12-20",
+   "short": "2015"
+  },
+  "congreso-2016-06": {
+   "id": "congreso-2016-06",
+   "date": "2016-06-26",
+   "short": "2016"
+  },
+  "congreso-2019-04": {
+   "id": "congreso-2019-04",
+   "date": "2019-04-28",
+   "short": "28A 2019",
+   "tick": {
+    "es": "abr. 2019",
+    "en": "Apr 2019"
+   }
+  },
+  "congreso-2019-11": {
+   "id": "congreso-2019-11",
+   "date": "2019-11-10",
+   "short": "10N 2019",
+   "tick": {
+    "es": "nov. 2019",
+    "en": "Nov 2019"
+   }
+  },
+  "congreso-2023-07": {
+   "id": "congreso-2023-07",
+   "date": "2023-07-23",
+   "short": "23J 2023",
+   "tick": {
+    "es": "2023",
+    "en": "2023"
+   }
+  }
+ },
+ "transitions": [
+  {
+   "id": "congreso-2019-11__congreso-2023-07",
+   "old": "congreso-2019-11",
+   "new": "congreso-2023-07",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BILDU",
+    "BNG",
+    "CC",
+    "CS",
+    "CUP",
+    "ERC",
+    "JUNTS",
+    "MP",
+    "NA+",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UP",
+    "VOX",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BILDU",
+    "BNG",
+    "CC",
+    "CUP",
+    "ERC",
+    "JUNTS",
+    "PNV",
+    "PP",
+    "PSOE",
+    "SUMAR",
+    "UPN",
+    "VOX",
+    "OTROS"
+   ],
+   "units": 8131,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "UP": [
+     "SUMAR"
+    ],
+    "MP": [
+     "SUMAR"
+    ],
+    "NA+": [
+     "UPN"
+    ]
+   },
+   "survey": {
+    "source": {
+     "es": "Encuesta postelectoral del CIS (estudio 3420, septiembre de 2023): voto en 2023 por recuerdo de voto de noviembre de 2019, calibrado a los resultados oficiales",
+     "en": "CIS post-election survey (study 3420, September 2023): 2023 vote by recalled November 2019 vote, calibrated to the official results"
+    },
+    "short": {
+     "es": "Encuesta CIS",
+     "en": "CIS survey"
+    }
+   }
+  },
+  {
+   "id": "congreso-2019-04__congreso-2019-11",
+   "old": "congreso-2019-04",
+   "new": "congreso-2019-11",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BILDU",
+    "BNG",
+    "CC",
+    "COMPROMIS",
+    "CS",
+    "ERC",
+    "JUNTS",
+    "NA+",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UP",
+    "VOX",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BILDU",
+    "BNG",
+    "CC",
+    "CS",
+    "CUP",
+    "ERC",
+    "JUNTS",
+    "MP",
+    "NA+",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UP",
+    "VOX",
+    "OTROS"
+   ],
+   "units": 8131,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "COMPROMIS": [
+     "MP"
+    ]
+   }
+  },
+  {
+   "id": "congreso-2016-06__congreso-2019-04",
+   "old": "congreso-2016-06",
+   "new": "congreso-2019-04",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BILDU",
+    "CC",
+    "CDC",
+    "CS",
+    "ERC",
+    "PACMA",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UP",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BILDU",
+    "BNG",
+    "CC",
+    "COMPROMIS",
+    "CS",
+    "ERC",
+    "JUNTS",
+    "NA+",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UP",
+    "VOX",
+    "OTROS"
+   ],
+   "units": 8123,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "CDC": [
+     "JUNTS"
+    ],
+    "UP": [
+     "COMPROMIS"
+    ]
+   }
+  },
+  {
+   "id": "congreso-2015-12__congreso-2016-06",
+   "old": "congreso-2015-12",
+   "new": "congreso-2016-06",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BILDU",
+    "CC",
+    "CS",
+    "DL",
+    "ERC",
+    "IU",
+    "PNV",
+    "PODEMOS",
+    "PP",
+    "PSOE",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BILDU",
+    "CC",
+    "CDC",
+    "CS",
+    "ERC",
+    "PACMA",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UP",
+    "OTROS"
+   ],
+   "units": 8123,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "PODEMOS": [
+     "UP"
+    ],
+    "IU": [
+     "UP"
+    ],
+    "DL": [
+     "CDC"
+    ]
+   }
+  },
+  {
+   "id": "congreso-2011-11__congreso-2015-12",
+   "old": "congreso-2011-11",
+   "new": "congreso-2015-12",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "AMAIUR",
+    "BNG",
+    "CC",
+    "CIU",
+    "COMPROMIS",
+    "ERC",
+    "FAC",
+    "GBAI",
+    "IU",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UPYD",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BILDU",
+    "CC",
+    "CS",
+    "DL",
+    "ERC",
+    "IU",
+    "PNV",
+    "PODEMOS",
+    "PP",
+    "PSOE",
+    "OTROS"
+   ],
+   "units": 8114,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "AMAIUR": [
+     "BILDU"
+    ],
+    "CIU": [
+     "DL"
+    ],
+    "COMPROMIS": [
+     "PODEMOS"
+    ],
+    "FAC": [
+     "PP"
+    ]
+   }
+  },
+  {
+   "id": "congreso-2008-03__congreso-2011-11",
+   "old": "congreso-2008-03",
+   "new": "congreso-2011-11",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BNG",
+    "CC",
+    "CIU",
+    "ERC",
+    "IU",
+    "NABAI",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UPYD",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "AMAIUR",
+    "BNG",
+    "CC",
+    "CIU",
+    "COMPROMIS",
+    "ERC",
+    "FAC",
+    "GBAI",
+    "IU",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UPYD",
+    "OTROS"
+   ],
+   "units": 8112,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "NABAI": [
+     "GBAI"
+    ]
+   }
+  },
+  {
+   "id": "congreso-2004-03__congreso-2008-03",
+   "old": "congreso-2004-03",
+   "new": "congreso-2008-03",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BNG",
+    "CC",
+    "CHA",
+    "CIU",
+    "EA",
+    "ERC",
+    "IU",
+    "NABAI",
+    "PNV",
+    "PP",
+    "PSOE",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BNG",
+    "CC",
+    "CIU",
+    "ERC",
+    "IU",
+    "NABAI",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UPYD",
+    "OTROS"
+   ],
+   "units": 8109,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {}
+  },
+  {
+   "id": "congreso-2000-03__congreso-2004-03",
+   "old": "congreso-2000-03",
+   "new": "congreso-2004-03",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BNG",
+    "CC",
+    "CHA",
+    "CIU",
+    "EA",
+    "ERC",
+    "ICV",
+    "IU",
+    "PA",
+    "PNV",
+    "PP",
+    "PSOE",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BNG",
+    "CC",
+    "CHA",
+    "CIU",
+    "EA",
+    "ERC",
+    "IU",
+    "NABAI",
+    "PNV",
+    "PP",
+    "PSOE",
+    "OTROS"
+   ],
+   "units": 8104,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "ICV": [
+     "IU"
+    ]
+   }
+  },
+  {
+   "id": "congreso-1996-03__congreso-2000-03",
+   "old": "congreso-1996-03",
+   "new": "congreso-2000-03",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BNG",
+    "CC",
+    "CIU",
+    "EA",
+    "ERC",
+    "HB",
+    "IU",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UV",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BNG",
+    "CC",
+    "CHA",
+    "CIU",
+    "EA",
+    "ERC",
+    "ICV",
+    "IU",
+    "PA",
+    "PNV",
+    "PP",
+    "PSOE",
+    "OTROS"
+   ],
+   "units": 8096,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "IU": [
+     "ICV"
+    ]
+   }
+  },
+  {
+   "id": "congreso-1993-06__congreso-1996-03",
+   "old": "congreso-1993-06",
+   "new": "congreso-1996-03",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "CC",
+    "CDS",
+    "CIU",
+    "EA",
+    "ERC",
+    "HB",
+    "IU",
+    "PAR",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UV",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "BNG",
+    "CC",
+    "CIU",
+    "EA",
+    "ERC",
+    "HB",
+    "IU",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UV",
+    "OTROS"
+   ],
+   "units": 8086,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "PAR": [
+     "PP"
+    ]
+   }
+  },
+  {
+   "id": "congreso-1989-10__congreso-1993-06",
+   "old": "congreso-1989-10",
+   "new": "congreso-1993-06",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "AIC",
+    "CDS",
+    "CIU",
+    "EA",
+    "EE",
+    "HB",
+    "IU",
+    "PA",
+    "PAR",
+    "PNV",
+    "PP",
+    "PSOE",
+    "RM",
+    "UV",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "CC",
+    "CDS",
+    "CIU",
+    "EA",
+    "ERC",
+    "HB",
+    "IU",
+    "PAR",
+    "PNV",
+    "PP",
+    "PSOE",
+    "UV",
+    "OTROS"
+   ],
+   "units": 8064,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "AIC": [
+     "CC"
+    ],
+    "EE": [
+     "PSOE"
+    ]
+   }
+  },
+  {
+   "id": "congreso-1986-06__congreso-1989-10",
+   "old": "congreso-1986-06",
+   "new": "congreso-1989-10",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "AIC",
+    "CDS",
+    "CG",
+    "CIU",
+    "CP",
+    "EE",
+    "HB",
+    "IU",
+    "MUC",
+    "PAR",
+    "PNV",
+    "PSOE",
+    "UV",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "AIC",
+    "CDS",
+    "CIU",
+    "EA",
+    "EE",
+    "HB",
+    "IU",
+    "PA",
+    "PAR",
+    "PNV",
+    "PP",
+    "PSOE",
+    "RM",
+    "UV",
+    "OTROS"
+   ],
+   "units": 8050,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "CP": [
+     "PP"
+    ]
+   }
+  },
+  {
+   "id": "congreso-1982-10__congreso-1986-06",
+   "old": "congreso-1982-10",
+   "new": "congreso-1986-06",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "AP",
+    "CDS",
+    "CIU",
+    "EE",
+    "ERC",
+    "HB",
+    "PCE",
+    "PNV",
+    "PSOE",
+    "UCD",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "AIC",
+    "CDS",
+    "CG",
+    "CIU",
+    "CP",
+    "EE",
+    "HB",
+    "IU",
+    "MUC",
+    "PAR",
+    "PNV",
+    "PSOE",
+    "UV",
+    "OTROS"
+   ],
+   "units": 7915,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "AP": [
+     "CP"
+    ],
+    "PCE": [
+     "IU",
+     "MUC"
+    ]
+   }
+  },
+  {
+   "id": "congreso-1979-03__congreso-1982-10",
+   "old": "congreso-1979-03",
+   "new": "congreso-1982-10",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "CD",
+    "CIU",
+    "EE",
+    "ERC",
+    "HB",
+    "PA",
+    "PAR",
+    "PCE",
+    "PNV",
+    "PSOE",
+    "PTE",
+    "UCD",
+    "UN",
+    "UPC",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "AP",
+    "CDS",
+    "CIU",
+    "EE",
+    "ERC",
+    "HB",
+    "PCE",
+    "PNV",
+    "PSOE",
+    "UCD",
+    "OTROS"
+   ],
+   "units": 7916,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "CD": [
+     "AP"
+    ],
+    "PAR": [
+     "AP"
+    ],
+    "UCD": [
+     "CDS"
+    ]
+   }
+  },
+  {
+   "id": "congreso-1977-06__congreso-1979-03",
+   "old": "congreso-1977-06",
+   "new": "congreso-1979-03",
+   "old_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "AP",
+    "CAIC",
+    "EE",
+    "ERC",
+    "FDC",
+    "PCE",
+    "PDPC",
+    "PNV",
+    "PSOE",
+    "PSP",
+    "UCD",
+    "UDC",
+    "OTROS"
+   ],
+   "new_cats": [
+    "ABS",
+    "BLANCO_NULO",
+    "CD",
+    "CIU",
+    "EE",
+    "ERC",
+    "HB",
+    "PA",
+    "PAR",
+    "PCE",
+    "PNV",
+    "PSOE",
+    "PTE",
+    "UCD",
+    "UN",
+    "UPC",
+    "OTROS"
+   ],
+   "units": 8028,
+   "method": "wlb",
+   "levels": [
+    "ccaa",
+    "prov"
+   ],
+   "replicates": 80,
+   "interval_scale": 2.25,
+   "territories": [
+    "ES",
+    "01",
+    "02",
+    "03",
+    "04",
+    "05",
+    "06",
+    "07",
+    "08",
+    "09",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+   ],
+   "continuity": {
+    "AP": [
+     "CD"
+    ],
+    "PDPC": [
+     "CIU"
+    ],
+    "UDC": [
+     "CIU"
+    ],
+    "PSP": [
+     "PSOE"
+    ],
+    "CAIC": [
+     "PAR"
+    ]
+   }
+  }
+ ],
+ "territories": {
+  "ES": {
+   "es": "España",
+   "en": "Spain"
+  },
+  "01": {
+   "es": "Andalucía",
+   "en": "Andalusia"
+  },
+  "02": {
+   "es": "Aragón",
+   "en": "Aragon"
+  },
+  "03": {
+   "es": "Asturias",
+   "en": "Asturias"
+  },
+  "04": {
+   "es": "Illes Balears",
+   "en": "Balearic Islands"
+  },
+  "05": {
+   "es": "Canarias",
+   "en": "Canary Islands"
+  },
+  "06": {
+   "es": "Cantabria",
+   "en": "Cantabria"
+  },
+  "07": {
+   "es": "Castilla-La Mancha",
+   "en": "Castile-La Mancha"
+  },
+  "08": {
+   "es": "Castilla y León",
+   "en": "Castile and León"
+  },
+  "09": {
+   "es": "Cataluña",
+   "en": "Catalonia"
+  },
+  "10": {
+   "es": "Extremadura",
+   "en": "Extremadura"
+  },
+  "11": {
+   "es": "Galicia",
+   "en": "Galicia"
+  },
+  "12": {
+   "es": "Comunidad de Madrid",
+   "en": "Madrid"
+  },
+  "13": {
+   "es": "Navarra",
+   "en": "Navarre"
+  },
+  "14": {
+   "es": "País Vasco",
+   "en": "Basque Country"
+  },
+  "15": {
+   "es": "Región de Murcia",
+   "en": "Murcia"
+  },
+  "16": {
+   "es": "La Rioja",
+   "en": "La Rioja"
+  },
+  "17": {
+   "es": "Comunitat Valenciana",
+   "en": "Valencian Community"
+  },
+  "18": {
+   "es": "Ceuta",
+   "en": "Ceuta"
+  },
+  "19": {
+   "es": "Melilla",
+   "en": "Melilla"
+  }
+ },
+ "parties": {
+  "PP": {
+   "es": "PP",
+   "en": "PP",
+   "color": "#1d84ce",
+   "full_es": "Partido Popular",
+   "full_en": "People's Party"
+  },
+  "PSOE": {
+   "es": "PSOE",
+   "en": "PSOE",
+   "color": "#e30613",
+   "full_es": "Partido Socialista Obrero Español",
+   "full_en": "Spanish Socialist Workers' Party"
+  },
+  "VOX": {
+   "es": "Vox",
+   "en": "Vox",
+   "color": "#5ac035"
+  },
+  "SUMAR": {
+   "es": "Sumar",
+   "en": "Sumar",
+   "color": "#e3346f"
+  },
+  "FA": {
+   "es": "Frente Amplio",
+   "en": "Frente Amplio",
+   "color": "#d6336c"
+  },
+  "PODEMOS": {
+   "es": "Podemos",
+   "en": "Podemos",
+   "color": "#6c2d82"
+  },
+  "SALF": {
+   "es": "Se Acabó La Fiesta",
+   "en": "Se Acabó La Fiesta",
+   "color": "#5b4a3f"
+  },
+  "UP": {
+   "es": "Unidas Podemos",
+   "en": "Unidas Podemos",
+   "color": "#6c2d82",
+   "full_es": "Unidas Podemos y aliados",
+   "full_en": "Unidas Podemos and allies"
+  },
+  "MP": {
+   "es": "Más País",
+   "en": "Más País",
+   "color": "#12b39a"
+  },
+  "CS": {
+   "es": "Ciudadanos",
+   "en": "Ciudadanos",
+   "color": "#f08a1c",
+   "full_es": "Ciudadanos",
+   "full_en": "Citizens"
+  },
+  "COMPROMIS": {
+   "es": "Compromís",
+   "en": "Compromís",
+   "color": "#c4501b"
+  },
+  "ERC": {
+   "es": "ERC",
+   "en": "ERC",
+   "color": "#f2b100",
+   "full_es": "Esquerra Republicana de Catalunya",
+   "full_en": "Republican Left of Catalonia"
+  },
+  "JUNTS": {
+   "es": "Junts",
+   "en": "Junts",
+   "color": "#1fb6c9"
+  },
+  "CUP": {
+   "es": "CUP",
+   "en": "CUP",
+   "color": "#e9d400",
+   "full_es": "Candidatura d'Unitat Popular",
+   "full_en": "Popular Unity Candidacy"
+  },
+  "PNV": {
+   "es": "PNV",
+   "en": "PNV",
+   "color": "#1e6b45",
+   "full_es": "Partido Nacionalista Vasco",
+   "full_en": "Basque Nationalist Party"
+  },
+  "BILDU": {
+   "es": "EH Bildu",
+   "en": "EH Bildu",
+   "color": "#0b9488"
+  },
+  "BNG": {
+   "es": "BNG",
+   "en": "BNG",
+   "color": "#7db4dc",
+   "full_es": "Bloque Nacionalista Galego",
+   "full_en": "Galician Nationalist Bloc"
+  },
+  "CC": {
+   "es": "Coalición Canaria",
+   "en": "Canarian Coalition",
+   "color": "#e8c22a"
+  },
+  "NA+": {
+   "es": "Navarra Suma",
+   "en": "Navarra Suma",
+   "color": "#2a3f8f"
+  },
+  "UPN": {
+   "es": "UPN",
+   "en": "UPN",
+   "color": "#22408f"
+  },
+  "UCD": {
+   "es": "UCD",
+   "en": "UCD",
+   "color": "#3d9b58",
+   "full_es": "Unión de Centro Democrático",
+   "full_en": "Union of the Democratic Centre"
+  },
+  "AP": {
+   "es": "AP",
+   "en": "AP",
+   "color": "#2b6cb0",
+   "full_es": "Alianza Popular",
+   "full_en": "People's Alliance"
+  },
+  "CD": {
+   "es": "CD",
+   "en": "CD",
+   "color": "#2b6cb0",
+   "full_es": "Coalición Democrática (AP y aliados)",
+   "full_en": "Democratic Coalition (AP and allies)"
+  },
+  "CP": {
+   "es": "CP",
+   "en": "CP",
+   "color": "#2b6cb0",
+   "full_es": "Coalición Popular (AP, PDP, PL)",
+   "full_en": "People's Coalition (AP, PDP, PL)"
+  },
+  "PSP": {
+   "es": "PSP",
+   "en": "PSP",
+   "color": "#e0705f",
+   "full_es": "Partido Socialista Popular",
+   "full_en": "Popular Socialist Party"
+  },
+  "CDS": {
+   "es": "CDS",
+   "en": "CDS",
+   "color": "#8cc63f",
+   "full_es": "Centro Democrático y Social",
+   "full_en": "Democratic and Social Centre"
+  },
+  "UPYD": {
+   "es": "UPyD",
+   "en": "UPyD",
+   "color": "#e5007e",
+   "full_es": "Unión Progreso y Democracia",
+   "full_en": "Union, Progress and Democracy"
+  },
+  "PCE": {
+   "es": "PCE",
+   "en": "PCE",
+   "color": "#9b1b30",
+   "full_es": "Partido Comunista de España",
+   "full_en": "Communist Party of Spain"
+  },
+  "IU": {
+   "es": "IU",
+   "en": "IU",
+   "color": "#9b1b30",
+   "full_es": "Izquierda Unida",
+   "full_en": "United Left"
+  },
+  "ICV": {
+   "es": "ICV",
+   "en": "ICV",
+   "color": "#4a9e6a",
+   "full_es": "Iniciativa per Catalunya Verds",
+   "full_en": "Initiative for Catalonia Greens"
+  },
+  "MUC": {
+   "es": "MUC",
+   "en": "MUC",
+   "color": "#c2565f",
+   "full_es": "Mesa para la Unidad de los Comunistas",
+   "full_en": "Board for Communist Unity"
+  },
+  "PTE": {
+   "es": "PTE",
+   "en": "PTE",
+   "color": "#b5523b",
+   "full_es": "Partido del Trabajo de España",
+   "full_en": "Labour Party of Spain"
+  },
+  "UN": {
+   "es": "Unión Nacional",
+   "en": "National Union",
+   "color": "#3d3d3d"
+  },
+  "FDC": {
+   "es": "FDC",
+   "en": "FDC",
+   "color": "#7b8ca6",
+   "full_es": "Federación de la Democracia Cristiana",
+   "full_en": "Christian Democracy Federation"
+  },
+  "RM": {
+   "es": "Ruiz-Mateos",
+   "en": "Ruiz-Mateos",
+   "color": "#6d6d6d"
+  },
+  "PDPC": {
+   "es": "PDPC",
+   "en": "PDPC",
+   "color": "#1a4a8a",
+   "full_es": "Pacte Democràtic per Catalunya",
+   "full_en": "Democratic Pact for Catalonia"
+  },
+  "UDC": {
+   "es": "UDC",
+   "en": "UDC",
+   "color": "#4f79b4",
+   "full_es": "Unió del Centre i la Democràcia Cristiana de Catalunya",
+   "full_en": "Union of the Centre and Christian Democracy of Catalonia"
+  },
+  "CIU": {
+   "es": "CiU",
+   "en": "CiU",
+   "color": "#1a4a8a",
+   "full_es": "Convergència i Unió",
+   "full_en": "Convergence and Union"
+  },
+  "DL": {
+   "es": "DL",
+   "en": "DL",
+   "color": "#1a4a8a",
+   "full_es": "Democràcia i Llibertat",
+   "full_en": "Democracy and Freedom"
+  },
+  "CDC": {
+   "es": "CDC",
+   "en": "CDC",
+   "color": "#1a4a8a",
+   "full_es": "Convergència Democràtica de Catalunya",
+   "full_en": "Democratic Convergence of Catalonia"
+  },
+  "EE": {
+   "es": "Euskadiko Ezkerra",
+   "en": "Euskadiko Ezkerra",
+   "color": "#d4462f"
+  },
+  "HB": {
+   "es": "Herri Batasuna",
+   "en": "Herri Batasuna",
+   "color": "#7a3b2e"
+  },
+  "EA": {
+   "es": "Eusko Alkartasuna",
+   "en": "Eusko Alkartasuna",
+   "color": "#7fb241"
+  },
+  "AMAIUR": {
+   "es": "Amaiur",
+   "en": "Amaiur",
+   "color": "#0b9488"
+  },
+  "NABAI": {
+   "es": "Nafarroa Bai",
+   "en": "Nafarroa Bai",
+   "color": "#c94f3d"
+  },
+  "GBAI": {
+   "es": "Geroa Bai",
+   "en": "Geroa Bai",
+   "color": "#c94f3d"
+  },
+  "CG": {
+   "es": "Coalición Galega",
+   "en": "Galician Coalition",
+   "color": "#5b8fc9"
+  },
+  "PA": {
+   "es": "Partido Andalucista",
+   "en": "Andalusian Party",
+   "color": "#2ca05a"
+  },
+  "AIC": {
+   "es": "AIC",
+   "en": "AIC",
+   "color": "#e8c22a",
+   "full_es": "Agrupaciones Independientes de Canarias",
+   "full_en": "Independent Groups of the Canaries"
+  },
+  "UPC": {
+   "es": "UPC",
+   "en": "UPC",
+   "color": "#e3a33b",
+   "full_es": "Unión del Pueblo Canario",
+   "full_en": "Canarian People's Union"
+  },
+  "PAR": {
+   "es": "PAR",
+   "en": "PAR",
+   "color": "#d9a400",
+   "full_es": "Partido Aragonés",
+   "full_en": "Aragonese Party"
+  },
+  "CAIC": {
+   "es": "CAIC",
+   "en": "CAIC",
+   "color": "#a8894f",
+   "full_es": "Candidatura Aragonesa Independiente de Centro",
+   "full_en": "Independent Aragonese Centre Candidacy"
+  },
+  "CHA": {
+   "es": "CHA",
+   "en": "CHA",
+   "color": "#5c8c3e",
+   "full_es": "Chunta Aragonesista",
+   "full_en": "Aragonese Union"
+  },
+  "UV": {
+   "es": "Unió Valenciana",
+   "en": "Valencian Union",
+   "color": "#4a90a4"
+  },
+  "FAC": {
+   "es": "Foro Asturias",
+   "en": "Foro Asturias",
+   "color": "#1f5f9f"
+  },
+  "PACMA": {
+   "es": "PACMA",
+   "en": "PACMA",
+   "color": "#8fbf3f",
+   "full_es": "Partido Animalista",
+   "full_en": "Animalist Party"
+  },
+  "OTROS": {
+   "es": "Otros",
+   "en": "Others",
+   "color": "#a89a8c"
+  },
+  "NEW_VOTERS": {
+   "es": "Nuevos electores",
+   "en": "New voters",
+   "color": "#5fa8a0"
+  },
+  "DEATHS": {
+   "es": "Fallecidos",
+   "en": "Deaths",
+   "color": "#4b5058"
+  },
+  "BLANCO_NULO": {
+   "es": "Blanco y nulo",
+   "en": "Blank and null",
+   "color": "#c3c7cc"
+  },
+  "ABS": {
+   "es": "Abstención",
+   "en": "Abstention",
+   "color": "#8d949c"
+  }
+ },
+ "order": [
+  "UCD",
+  "AP",
+  "CD",
+  "CP",
+  "PP",
+  "NA+",
+  "UPN",
+  "FAC",
+  "PSOE",
+  "PSP",
+  "CDS",
+  "VOX",
+  "SALF",
+  "CS",
+  "UPYD",
+  "UN",
+  "FDC",
+  "RM",
+  "PCE",
+  "IU",
+  "ICV",
+  "MUC",
+  "PTE",
+  "SUMAR",
+  "FA",
+  "UP",
+  "PODEMOS",
+  "MP",
+  "COMPROMIS",
+  "PDPC",
+  "UDC",
+  "CIU",
+  "DL",
+  "CDC",
+  "ERC",
+  "JUNTS",
+  "CUP",
+  "PNV",
+  "EA",
+  "EE",
+  "HB",
+  "AMAIUR",
+  "BILDU",
+  "NABAI",
+  "GBAI",
+  "BNG",
+  "CG",
+  "PA",
+  "AIC",
+  "CC",
+  "UPC",
+  "PAR",
+  "CAIC",
+  "CHA",
+  "UV",
+  "PACMA",
+  "OTROS",
+  "BLANCO_NULO",
+  "ABS",
+  "NEW_VOTERS",
+  "DEATHS"
+ ],
+ "continuity": {
+  "UP": [
+   "SUMAR"
+  ],
+  "MP": [
+   "SUMAR"
+  ],
+  "COMPROMIS": [
+   "MP",
+   "SUMAR"
+  ],
+  "NA+": [
+   "UPN"
+  ],
+  "SUMAR": [
+   "FA",
+   "PODEMOS"
+  ],
+  "UPN": [
+   "PP"
+  ]
+ }
+}

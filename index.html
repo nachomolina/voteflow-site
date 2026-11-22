@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoteFlow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Election-night ledger: cool paper, ink rules, party colour only in the data. One wide column:
+     headline and controls, then the flow diagram as the hero, then matrix and party cards. */
+  --paper: #f1f2ee;
+  --panel: #fafaf8;
+  --ink: #17202b;
+  --muted: #5b6470;
+  --rule: #d2d5ce;
+  --cell: 23, 32, 43;
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #11151b; --panel: #171c23; --ink: #e7e9e4; --muted: #9aa3ad; --rule: #2b323b;
+    --cell: 231, 233, 228; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #11151b; --panel: #171c23; --ink: #e7e9e4; --muted: #9aa3ad; --rule: #2b323b;
+  --cell: 231, 233, 228; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 48px; }
+header.top { display: grid; gap: 14px; padding: 28px 0 18px; border-bottom: 2px solid var(--ink); }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+h1 { font-family: var(--display); font-stretch: 68%; font-weight: 800; font-size: clamp(34px, 6vw, 64px); line-height: .95; margin: 0; letter-spacing: -.01em; text-transform: uppercase; text-wrap: balance; }
+h1 .sub { display: block; font-weight: 500; font-stretch: 85%; text-transform: none; font-size: .42em; letter-spacing: 0; margin-top: 10px; color: var(--muted); }
+h2 { font-family: var(--display); font-stretch: 75%; font-weight: 700; font-size: 24px; margin: 0; text-transform: uppercase; letter-spacing: .01em; text-wrap: balance; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--ink); border-radius: 3px; overflow: hidden; }
+.seg button { font: 500 13px var(--mono); background: transparent; color: var(--ink); border: 0; padding: 7px 12px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.seg button:hover:not([aria-pressed="true"]) { background: rgba(var(--cell), .08); }
+select { font: 500 13px var(--mono); color: var(--ink); background: var(--panel); border: 1px solid var(--ink); border-radius: 3px; padding: 6px 8px; }
+label.check { font-size: 13px; display: inline-flex; gap: 6px; align-items: center; cursor: pointer; color: var(--muted); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+/* Timeline of elections: each stretch between two elections is a transition */
+.timeline { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+.tl-step { font: 600 18px var(--mono); line-height: 1; width: 34px; height: 34px; border: 1px solid var(--ink); border-radius: 3px; background: transparent; color: var(--ink); cursor: pointer; }
+.tl-step:disabled { opacity: .3; cursor: default; }
+.tl-step:hover:not(:disabled) { background: rgba(var(--cell), .08); }
+.tl-track { display: flex; align-items: flex-start; overflow-x: auto; scrollbar-width: thin; padding: 4px 30px 26px; }
+.tl-stop { flex: 0 0 auto; display: grid; justify-items: center; gap: 6px; width: 14px; position: relative; }
+.tl-dot { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--ink); background: var(--paper); margin-top: 9px; }
+.tl-stop.on .tl-dot { background: var(--ink); }
+.tl-year { font: 500 11.5px var(--mono); color: var(--muted); white-space: nowrap; position: absolute; top: 28px; left: 50%; transform: translateX(-50%); }
+.tl-stop.on .tl-year { color: var(--ink); font-weight: 600; }
+.tl-seg { flex: 1 0 40px; height: 30px; border: 0; background: transparent; cursor: pointer; position: relative; padding: 0; }
+.tl-seg::before { content: ""; position: absolute; left: -2px; right: -2px; top: 13px; height: 3px; background: var(--rule); border-radius: 2px; }
+.tl-seg:hover::before { background: var(--muted); }
+.tl-seg[aria-pressed="true"]::before { background: var(--ink); height: 5px; top: 12px; }
+.tl-seg:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.tl-wrap { min-width: 0; }
+@media (max-width: 700px) { .tl-seg { flex-basis: 54px; } .tl-year { font-size: 10.5px; } }
+.pill { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; border: 1px solid currentColor; border-radius: 999px; padding: 2px 8px; }
+.prelim { color: #b4400e; }
+:root[data-theme="dark"] .prelim { color: #f19a6b; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .prelim { color: #f19a6b; } }
+.notice { font-size: 13px; color: var(--muted); max-width: 75ch; margin: 0; }
+section { padding: 26px 0 8px; border-bottom: 1px solid var(--rule); display: grid; gap: 14px; }
+.section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 10px; }
+.note { font-size: 13px; color: var(--muted); margin: 0; max-width: 80ch; }
+.highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+.hl h3 { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+.hl ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.hl li { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--rule); font-size: 14px; }
+.hl li .num { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; text-align: right; }
+.hl li .num small { color: var(--muted); }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: baseline; }
+.arrow { color: var(--muted); margin: 0 6px; }
+.sankey { width: 100%; overflow-x: auto; }
+.sankey svg { display: block; width: 100%; min-width: 640px; height: auto; }
+.sankey text { fill: var(--ink); font-family: var(--body); }
+.sankey .val { fill: var(--muted); font-family: var(--mono); font-size: 11px; }
+.sankey .colhead { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; fill: var(--muted); }
+.sankey path.link { mix-blend-mode: multiply; transition: fill-opacity .12s; }
+:root[data-theme="dark"] .sankey path.link { mix-blend-mode: screen; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .sankey path.link { mix-blend-mode: screen; } }
+.matrix-wrap { overflow-x: auto; }
+table.matrix { border-collapse: separate; border-spacing: 2px; font-size: 13px; }
+table.matrix th { font-weight: 600; font-size: 12px; white-space: nowrap; }
+table.matrix thead th { vertical-align: bottom; text-align: center; padding: 4px 2px; min-width: 52px; }
+table.matrix thead th .sw { display: block; margin: 0 auto 4px; width: 100%; height: 4px; border-radius: 1px; }
+table.matrix tbody th { text-align: left; padding: 4px 10px 4px 0; }
+table.matrix td { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; padding: 6px 7px; border-radius: 2px; min-width: 52px; cursor: default; }
+table.matrix td.diag { box-shadow: inset 0 0 0 1.5px var(--ink); }
+table.matrix td.na { background: repeating-linear-gradient(135deg, transparent 0 4px, rgba(var(--cell), .08) 4px 5px); }
+table.matrix .corner { font: 500 11px var(--mono); color: var(--muted); text-align: left; text-transform: uppercase; letter-spacing: .05em; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--rule); border-top: 4px solid var(--c); border-radius: 3px; padding: 12px 14px 14px; display: grid; gap: 10px; align-content: start; }
+.card h3 { margin: 0; font-family: var(--display); font-stretch: 75%; font-weight: 700; font-size: 20px; text-transform: uppercase; }
+.card .full { margin: -8px 0 0; font-size: 12px; color: var(--muted); }
+.card .votes { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.card .votes .delta { color: var(--muted); }
+.card .lbl { font-size: 12px; color: var(--muted); margin: 0 0 4px; }
+.bar { display: flex; height: 22px; gap: 2px; border-radius: 2px; overflow: hidden; }
+.bar span { display: block; height: 100%; min-width: 1px; position: relative; }
+.bar span em { position: absolute; left: 4px; top: 3px; font: 500 11px var(--mono); font-style: normal; color: #fff; white-space: nowrap; text-shadow: 0 0 3px rgba(0,0,0,.45); pointer-events: none; }
+.legend-line { font: 400 11.5px var(--mono); color: var(--muted); margin-top: 4px; display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.legend-line span { white-space: nowrap; }
+.method { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px 36px; }
+.method p { margin: 0; font-size: 14px; max-width: 65ch; }
+footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+#tip { position: fixed; z-index: 10; pointer-events: none; background: var(--ink); color: var(--paper); font-size: 13px; line-height: 1.4; padding: 8px 10px; border-radius: 3px; max-width: 320px; opacity: 0; transition: opacity .1s; }
+#tip .m { opacity: .7; font-family: var(--mono); font-size: 12px; }
+#tip b { font-weight: 700; }
+.empty { color: var(--muted); font-style: italic; }
+@media (max-width: 520px) { .wrap { padding: 0 16px 40px; } h1 { font-size: 34px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow"><span id="eyebrow"></span><span class="pill prelim" id="prelim-pill"></span></div>
+    <h1 id="headline"></h1>
+    <nav class="timeline" id="timeline">
+      <button type="button" class="tl-step" id="tl-prev">‹</button>
+      <div class="tl-wrap"><div class="tl-track" id="tl-track"></div></div>
+      <button type="button" class="tl-step" id="tl-next">›</button>
+    </nav>
+    <div class="controls">
+      <select id="terr" aria-label="Territorio"></select>
+      <label class="check"><input type="checkbox" id="abs" checked> <span id="abs-label"></span></label>
+      <label class="check" id="turnover-wrap" hidden><input type="checkbox" id="turnover" checked> <span id="turnover-label"></span></label>
+      <div class="seg" id="lang-seg" role="group" aria-label="Idioma / Language">
+        <button type="button" data-lang="es">ES</button><button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+    <p class="notice" id="notice"></p>
+  </header>
+
+  <section id="s-highlights">
+    <div class="highlights">
+      <div class="hl"><h3 id="hl1-title"></h3><ol id="hl1"></ol></div>
+      <div class="hl"><h3 id="hl2-title"></h3><ol id="hl2"></ol></div>
+    </div>
+  </section>
+
+  <section id="s-flows">
+    <div class="section-head"><h2 id="flows-title"></h2><p class="note" id="flows-note"></p></div>
+    <div class="sankey" id="sankey"></div>
+  </section>
+
+  <section id="s-matrix">
+    <div class="section-head">
+      <h2 id="matrix-title"></h2>
+      <div class="seg" id="mode-seg" role="group">
+        <button type="button" data-mode="transfer"></button><button type="button" data-mode="origin"></button><button type="button" data-mode="survey" hidden></button>
+      </div>
+    </div>
+    <p class="note" id="matrix-note"></p>
+    <div class="matrix-wrap"><table class="matrix" id="matrix"></table></div>
+  </section>
+
+  <section id="s-cards">
+    <div class="section-head"><h2 id="cards-title"></h2></div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section id="s-method">
+    <div class="section-head"><h2 id="method-title"></h2></div>
+    <div class="method" id="method"></div>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+/*__VOTEFLOW_INLINE__*/
+(function () {
+  "use strict";
+
+  const I18N = {
+    es: {
+      eyebrow: "VoteFlow · Elecciones al Congreso",
+      headline: "Cómo se movió el voto",
+      sub: "Del {old} al {new} · {terr}",
+      prelim: "Preliminar",
+      notice: "Estimaciones de un modelo bayesiano a partir de los resultados oficiales por municipio, con intervalos del 90 %.",
+      surveyNotice: " El modelo da bastante más fidelidad a los grandes partidos que la encuesta postelectoral del CIS de 2023, y ninguna de las dos fuentes es exacta (véase «Cómo se calcula»).",
+      calibNotice: " Los intervalos se calibraron con elecciones simuladas sobre 2019–2023; en transiciones antiguas, con grandes cambios de participación o de partidos, pueden quedarse cortos.",
+      timeline: "Elecciones",
+      prev: "Transición anterior",
+      next: "Transición siguiente",
+      segLabel: "Del {old} al {new}",
+      countNotice: "Escrutinio provisional: estimación con los {n} municipios ya escrutados ({pct} % del censo; escrutado en toda España: {esc} %). Se actualizará con el recuento definitivo.",
+      absLabel: "Incluir abstención y voto en blanco o nulo",
+      turnoverLabel: "Incluir nuevos electores y fallecidos",
+      hl1: "Mayores trasvases entre partidos",
+      hl2: "Electores que pasaron a la abstención",
+      ofParty: "de los electores de {p}",
+      flowsTitle: "Flujos de voto",
+      flowsNote: "El ancho de cada banda es el número estimado de electores que pasaron de una opción a otra.",
+      matrixTitle: "Matriz de transferencias",
+      mTransfer: "¿A dónde fueron?",
+      mOrigin: "¿De dónde vienen?",
+      mSurvey: "Encuesta CIS",
+      mSurveyNote: "{src}. Cada fila suma 100. Sin dato: menos de 40 encuestados o categoría no comparable (en 2023 el CIS no distingue a la CUP).",
+      tipSurvey: "{s}: {v} [{lo}–{hi}]",
+      mTransferNote: "Cada fila suma 100: cómo se repartieron en el {new} los electores de cada opción del {old}.",
+      mOriginNote: "Cada columna suma 100: qué habían votado en el {old} los electores de cada opción del {new}.",
+      corner: "Desde ↓ · hacia →",
+      cardsTitle: "Partido a partido",
+      wentTo: "Sus electores del {old} votaron en el {new}:",
+      cameFrom: "Sus electores del {new} habían votado en el {old}:",
+      votes: "votos",
+      voters: "electores",
+      interval: "intervalo 90 %",
+      tipOld: "{v} de los electores de {p} en el {e}",
+      tipNew: "{v} de los electores de {p} en el {e}",
+      share: "{v} del censo",
+      methodTitle: "Cómo se calcula",
+      method: [
+        "Nadie sabe directamente qué votó cada persona en dos elecciones: el voto es secreto. Lo que sí se conoce es el resultado de cada municipio. Si en los municipios donde un partido cayó más subió más otro, es probable que parte de sus electores se movieran de uno a otro. El modelo hace ese razonamiento de forma sistemática con los {n} municipios a la vez.",
+        "Técnicamente es un modelo bayesiano jerárquico: una matriz de transferencias nacional con desviaciones por comunidad autónoma y por provincia, y más variabilidad entre municipios de la que daría el azar puro (Dirichlet-multinomial). Los partidos regionales solo pueden recibir votos donde se presentaron. Los flujos son el número esperado de electores que pasaron de cada opción a cada otra, dado el resultado de cada municipio.",
+        "La incertidumbre se calcula con un bootstrap bayesiano: el modelo se reajusta {r} veces dando pesos aleatorios a los municipios. Esos intervalos se amplían {k} veces porque, en elecciones simuladas sobre los municipios reales con transferencias conocidas, solo así contienen el valor verdadero en torno al 90 % de las veces: las diferencias de comportamiento entre municipios de una misma provincia sesgan algo las estimaciones.",
+        "Limitaciones: el modelo supone que, dentro de cada provincia, los municipios solo se diferencian al azar en cómo cambian sus votantes. Si los cambios dependen de la composición de cada lugar (por ejemplo, si los votantes del PSOE se pasan más a Sumar donde Sumar es fuerte), las estimaciones pueden sesgarse. Tampoco se modelan aún los cambios del censo (fallecimientos, nuevos votantes, mudanzas) ni se incluyen los electores residentes en el extranjero (CERA).",
+      ],
+      surveyPara: "Contraste con la encuesta del CIS. La encuesta postelectoral del CIS de 2023 y el modelo coinciden en las grandes tendencias, como el paso de la mayoría de los votantes de Ciudadanos al PP ({csm} % en el modelo, {css} % en la encuesta), pero el modelo da más fidelidad a los grandes partidos: el PSOE conserva al {pm} % de sus votantes de 2019 en el modelo y al {ps} % en la encuesta. Ninguna de las dos fuentes es la verdad. Aplicada a cada municipio, la matriz de la encuesta reproduce peor los resultados de 2023 que la del modelo, y el modelo sí recupera una matriz como la de la encuesta cuando se simulan elecciones con ella. Pero el modelo puede sesgarse si los votantes cambian de forma distinta según la composición de cada lugar, y la encuesta arrastra errores de recuerdo de voto (hubo dos elecciones en 2019) y una muestra muy desequilibrada, que aquí se ha ajustado a los resultados oficiales. La pestaña «Encuesta CIS» de la matriz muestra su estimación completa.",
+      source: "Datos: Ministerio del Interior, resultados oficiales",
+      generated: "Generado el {d}",
+      code: "Código abierto (MIT)",
+      none: "No hay estimaciones para esta selección.",
+    },
+    en: {
+      eyebrow: "VoteFlow · Spanish general elections",
+      headline: "How the vote moved",
+      sub: "From {old} to {new} · {terr}",
+      prelim: "Preliminary",
+      notice: "Estimates from a Bayesian model fitted to official results by municipality, with 90% intervals.",
+      surveyNotice: " The model gives the large parties considerably more loyalty than the 2023 CIS post-election survey, and neither source is exact (see “How it is estimated”).",
+      calibNotice: " Intervals were calibrated on simulated elections based on 2019–2023; for older transitions, with large changes in turnout or in the parties, they may be too narrow.",
+      timeline: "Elections",
+      prev: "Previous transition",
+      next: "Next transition",
+      segLabel: "From {old} to {new}",
+      countNotice: "Provisional count: estimate from the {n} municipalities already counted ({pct}% of the electorate; counted nationwide: {esc}%). It will be updated with the final count.",
+      absLabel: "Include abstention and blank or spoiled ballots",
+      turnoverLabel: "Include new voters and deaths",
+      hl1: "Largest switches between parties",
+      hl2: "Voters who moved to abstention",
+      ofParty: "of {p} voters",
+      flowsTitle: "Vote flows",
+      flowsNote: "Band width is the estimated number of voters who moved from one option to another.",
+      matrixTitle: "Transfer matrix",
+      mTransfer: "Where did they go?",
+      mOrigin: "Where did they come from?",
+      mSurvey: "CIS survey",
+      mSurveyNote: "{src}. Each row adds to 100. Blank: fewer than 40 respondents or category not comparable (in 2023 the CIS does not code CUP separately).",
+      tipSurvey: "{s}: {v} [{lo}–{hi}]",
+      mTransferNote: "Each row adds to 100: how voters of each {old} option split in {new}.",
+      mOriginNote: "Each column adds to 100: what voters of each {new} option had voted in {old}.",
+      corner: "From ↓ · to →",
+      cardsTitle: "Party by party",
+      wentTo: "Its {old} voters voted in {new}:",
+      cameFrom: "Its {new} voters had voted in {old}:",
+      votes: "votes",
+      voters: "voters",
+      interval: "90% interval",
+      tipOld: "{v} of {p} voters in {e}",
+      tipNew: "{v} of {p} voters in {e}",
+      share: "{v} of the electorate",
+      methodTitle: "How it is estimated",
+      method: [
+        "Nobody observes how a person voted in two elections: the ballot is secret. What is known is the result in every municipality. If, where one party fell most, another rose most, some of its voters probably moved from one to the other. The model makes that argument systematically with all {n} municipalities at once.",
+        "Technically it is a hierarchical Bayesian model: a national transfer matrix with deviations by autonomous community and by province, and more variation between municipalities than pure chance would give (Dirichlet-multinomial). Regional parties can only receive votes where they stood. Flows are the expected number of voters moving from each option to each other, given the result in every municipality.",
+        "Uncertainty comes from a Bayesian bootstrap: the model is refitted {r} times with random weights on the municipalities. Those intervals are widened {k} times because, in simulated elections on the real municipalities with known transfers, only then do they contain the true value about 90% of the time: differences in behaviour between municipalities of the same province bias the estimates somewhat.",
+        "Limitations: the model assumes that, within each province, municipalities differ only at random in how their voters move. If the moves depend on the make-up of each place (for example, if PSOE voters switch to Sumar more where Sumar is strong), the estimates can be biased. Changes in the electorate (deaths, first-time voters, people moving) are not yet modelled separately, and voters living abroad (CERA) are not included.",
+      ],
+      surveyPara: "Comparison with the CIS survey. The 2023 CIS post-election survey and the model agree on the big trends, such as most Ciudadanos voters moving to the PP ({csm}% in the model, {css}% in the survey), but the model gives the large parties more loyalty: the PSOE keeps {pm}% of its 2019 voters in the model and {ps}% in the survey. Neither source is the truth. Applied to every municipality, the survey's matrix reproduces the 2023 results worse than the model's, and the model does recover a survey-like matrix when elections are simulated with it. But the model can be biased if voters move differently depending on the make-up of each place, and the survey carries errors in recalled vote (there were two elections in 2019) and a very unbalanced sample, adjusted here to the official results. The “CIS survey” tab of the matrix shows its full estimate.",
+      source: "Data: Spanish Ministry of the Interior, official results",
+      generated: "Generated {d}",
+      code: "Open source (MIT)",
+      none: "No estimates for this selection.",
+    },
+  };
+  const TURNOVER = new Set(["NEW_VOTERS", "DEATHS"]);
+  const SPECIAL = new Set(["ABS", "BLANCO_NULO", ...TURNOVER]);
+  const SHORT = { ABS: { es: "Abst.", en: "Abst." }, BLANCO_NULO: { es: "Bl./nulo", en: "Bl./null" },
+    UP: { es: "UP", en: "UP" }, MP: { es: "MP", en: "MP" }, CS: { es: "Cs", en: "Cs" }, CC: { es: "CC", en: "CC" },
+    "NA+": { es: "NA+", en: "NA+" }, OTROS: { es: "Otros", en: "Other" }, COMPROMIS: { es: "Compr.", en: "Compr." },
+    BILDU: { es: "Bildu", en: "Bildu" }, FA: { es: "FA", en: "FA" }, SALF: { es: "SALF", en: "SALF" },
+    NEW_VOTERS: { es: "Nuevos", en: "New" }, DEATHS: { es: "Fallec.", en: "Deaths" },
+    PODEMOS: { es: "Podemos", en: "Podemos" } };
+
+  const S = { meta: null, recs: new Map(), tr: null, terr: "ES", lang: "es", showAbs: true, showTurnover: true,
+    mode: "transfer" };
+  const tip = document.getElementById("tip");
+
+  // ---------------------------------------------------------------- helpers
+  const t = (k, vars) => {
+    let s = I18N[S.lang][k];
+    if (vars) for (const [a, b] of Object.entries(vars)) s = s.split("{" + a + "}").join(b);
+    return s;
+  };
+  const locale = () => S.lang === "es"
+    ? d3.formatLocale({ decimal: ",", thousands: ".", grouping: [3], currency: ["", " €"] })
+    : d3.formatLocale({ decimal: ".", thousands: ",", grouping: [3], currency: ["€", ""] });
+  const fmtInt = (v) => locale().format(",d")(Math.round(v));
+  const fmtPct = (v) => locale().format(".1f")(v) + (S.lang === "es" ? "\u00a0%" : "%");
+  const fmtShort = (v) => {
+    const f = locale().format(".2f"), f1 = locale().format(".0f");
+    if (Math.abs(v) >= 1e6) return f(v / 1e6) + " M";
+    if (Math.abs(v) >= 1e3) return f1(v / 1e3) + (S.lang === "es" ? " mil" : "k");
+    return f1(v);
+  };
+  const party = (c) => S.meta.parties[c] || { es: c, en: c, color: "#999" };
+  const pname = (c) => party(c)[S.lang];
+  const pshort = (c) => (SHORT[c] ? SHORT[c][S.lang] : pname(c));
+  const pcolor = (c) => party(c).color;
+  const ordIdx = (c) => { const i = S.meta.order.indexOf(c); return i < 0 ? 999 : i; };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+  const elShort = (id) => S.meta.elections[id].short;
+  const elTick = (id) => { const e = S.meta.elections[id]; return e.tick ? e.tick[S.lang] : e.short; };
+  const chron = () => S.meta.transitions.slice().sort((p, q) =>
+    S.meta.elections[p.old].date.localeCompare(S.meta.elections[q.old].date));
+  const sw = (c) => `<span class="sw" style="background:${pcolor(c)}"></span>`;
+
+  function showTip(html, ev) {
+    tip.innerHTML = html;
+    tip.style.opacity = 1;
+    moveTip(ev);
+  }
+  function moveTip(ev) {
+    const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = ev.clientX + pad, y = ev.clientY + pad;
+    if (x + w > window.innerWidth - 8) x = ev.clientX - w - pad;
+    if (y + h > window.innerHeight - 8) y = ev.clientY - h - pad;
+    tip.style.left = Math.max(8, x) + "px";
+    tip.style.top = Math.max(8, y) + "px";
+  }
+  function hideTip() { tip.style.opacity = 0; }
+
+  function current() {
+    const tr = S.meta.transitions.find((x) => x.id === S.tr);
+    const rec = S.recs.get(S.tr + "|" + S.terr);
+    return { tr, rec };
+  }
+
+  function isContinuity(o, n) {
+    if (o === n) return true;
+    const { tr } = current();
+    const cont = (tr && tr.continuity) || S.meta.continuity;
+    return (cont[o] || []).includes(n);
+  }
+
+  function flowTip(tr, rec, b, a) {
+    const oc = tr.old_cats[b], nc = tr.new_cats[a];
+    return `<b>${esc(pname(oc))}</b> <span class="m">${esc(elShort(tr.old))}</span> → <b>${esc(pname(nc))}</b> <span class="m">${esc(elShort(tr.new))}</span><br>` +
+      `${fmtInt(rec.F[b][a])} ${t("voters")} <span class="m">[${fmtShort(rec.Flo[b][a])}–${fmtShort(rec.Fhi[b][a])}, ${t("interval")}]</span><br>` +
+      `${esc(t("tipOld", { v: fmtPct(rec.T[b][a]), p: pname(oc), e: elShort(tr.old) }))} <span class="m">[${fmtPct(rec.Tlo[b][a])}–${fmtPct(rec.Thi[b][a])}]</span><br>` +
+      `${esc(t("tipNew", { v: fmtPct(rec.O[b][a]), p: pname(nc), e: elShort(tr.new) }))} <span class="m">[${fmtPct(rec.Olo[b][a])}–${fmtPct(rec.Ohi[b][a])}]</span>` +
+      (rec.S && rec.S[b][a] !== null && tr.survey
+        ? `<br><span class="m">${esc(t("tipSurvey", { s: tr.survey.short[S.lang], v: fmtPct(rec.S[b][a]), lo: fmtPct(rec.Slo[b][a]), hi: fmtPct(rec.Shi[b][a]) }))}</span>`
+        : "");
+  }
+
+  // ---------------------------------------------------------------- text and controls
+  function renderText() {
+    const { tr } = current();
+    document.documentElement.lang = S.lang;
+    document.getElementById("eyebrow").textContent = t("eyebrow");
+    document.getElementById("prelim-pill").textContent = t("prelim");
+    const terrName = S.meta.territories[S.terr] ? S.meta.territories[S.terr][S.lang] : S.terr;
+    document.getElementById("headline").innerHTML = esc(t("headline")) +
+      `<span class="sub">${esc(t("sub", { old: elShort(tr.old), new: elShort(tr.new), terr: terrName }))}</span>`;
+    document.title = `VoteFlow · ${elShort(tr.old)} → ${elShort(tr.new)} · ${terrName}`;
+    const cnt = tr.count;
+    const nf1 = locale().format(".1f");
+    document.getElementById("notice").textContent = (cnt && cnt.provisional
+      ? t("countNotice", { n: fmtInt(cnt.municipalities || 0), pct: nf1(100 * (cnt.electorate_share || 0)),
+          esc: nf1(cnt.national_count_pct || 0) }) + " "
+      : "") + t("notice") + (tr.survey ? t("surveyNotice") : "") +
+      (S.meta.elections[tr.old].date < "2019" ? t("calibNotice") : "");
+    document.getElementById("abs-label").textContent = t("absLabel");
+    document.getElementById("turnover-label").textContent = t("turnoverLabel");
+    document.getElementById("turnover-wrap").hidden = !(tr.old_cats.includes("NEW_VOTERS") || tr.new_cats.includes("DEATHS"));
+    document.getElementById("hl1-title").textContent = t("hl1");
+    document.getElementById("hl2-title").textContent = t("hl2");
+    document.getElementById("flows-title").textContent = t("flowsTitle");
+    document.getElementById("flows-note").textContent = t("flowsNote");
+    document.getElementById("matrix-title").textContent = t("matrixTitle");
+    document.getElementById("cards-title").textContent = t("cardsTitle");
+    document.getElementById("method-title").textContent = t("methodTitle");
+    document.querySelector('#mode-seg [data-mode="transfer"]').textContent = t("mTransfer");
+    document.querySelector('#mode-seg [data-mode="origin"]').textContent = t("mOrigin");
+    document.querySelector('#mode-seg [data-mode="survey"]').textContent = t("mSurvey");
+    const nf = locale().format(".1f");
+    const fill = (p) => p.split("{n}").join(fmtInt(tr.units || 0)).split("{r}").join(String(tr.replicates || "—"))
+      .split("{k}").join(nf(tr.interval_scale || 1));
+    let paras = I18N[S.lang].method.slice();
+    if (!tr.replicates) paras = paras.filter((p, i) => i !== 2);
+    let html = paras.map((p) => `<p>${esc(fill(p))}</p>`).join("");
+    const es = S.recs.get(S.tr + "|ES");
+    if (tr.survey && es && es.S) {
+      const val = (M, o, n) => {
+        const b = tr.old_cats.indexOf(o), a = tr.new_cats.indexOf(n);
+        return b >= 0 && a >= 0 && M[b][a] !== null ? nf(M[b][a]) : "—";
+      };
+      html += `<p>${esc(t("surveyPara", { csm: val(es.T, "CS", "PP"), css: val(es.S, "CS", "PP"),
+        pm: val(es.T, "PSOE", "PSOE"), ps: val(es.S, "PSOE", "PSOE") }))}</p>`;
+    }
+    document.getElementById("method").innerHTML = html;
+    const d = new Date(S.meta.generated);
+    document.getElementById("footer").innerHTML =
+      `<span>VoteFlow ${esc(S.meta.version)}</span><span>${esc(t("source"))}</span><span>${esc(t("code"))}</span>` +
+      `<span>${esc(t("generated", { d: d.toLocaleDateString(S.lang === "es" ? "es-ES" : "en-GB") }))}</span>`;
+    for (const b of document.querySelectorAll("#lang-seg button")) b.setAttribute("aria-pressed", String(b.dataset.lang === S.lang));
+    for (const b of document.querySelectorAll("#mode-seg button")) b.setAttribute("aria-pressed", String(b.dataset.mode === S.mode));
+  }
+
+  function renderControls() {
+    const list = chron();
+    const track = document.getElementById("tl-track");
+    track.setAttribute("aria-label", t("timeline"));
+    let h = "";
+    list.forEach((tr, i) => {
+      const on = tr.id === S.tr;
+      const stop = (id, cls) => `<div class="tl-stop${cls}"><span class="tl-dot"></span><span class="tl-year">${esc(elTick(id))}</span></div>`;
+      if (i === 0) h += stop(tr.old, on ? " on" : "");
+      const label = t("segLabel", { old: elShort(tr.old), new: elShort(tr.new) });
+      h += `<button type="button" class="tl-seg" data-tr="${tr.id}" aria-pressed="${on}" aria-label="${esc(label)}" title="${esc(label)}"></button>`;
+      const next = list[i + 1];
+      h += stop(tr.new, on || (next && next.id === S.tr) ? " on" : "");
+    });
+    track.innerHTML = h;
+    for (const b of track.querySelectorAll(".tl-seg")) {
+      b.addEventListener("click", () => select(b.dataset.tr));
+      b.addEventListener("mousemove", (ev) => showTip(esc(b.getAttribute("aria-label")), ev));
+      b.addEventListener("mouseleave", hideTip);
+    }
+    const idx = list.findIndex((x) => x.id === S.tr);
+    const prev = document.getElementById("tl-prev"), next = document.getElementById("tl-next");
+    prev.disabled = idx <= 0; next.disabled = idx >= list.length - 1;
+    prev.setAttribute("aria-label", t("prev")); next.setAttribute("aria-label", t("next"));
+    prev.title = t("prev"); next.title = t("next");
+    const cur = track.querySelector('.tl-seg[aria-pressed="true"]');
+    if (cur) {  // keep the selected stretch in view without scrolling the page
+      const l = cur.offsetLeft - track.offsetLeft, r = l + cur.offsetWidth;
+      if (l < track.scrollLeft + 30 || r > track.scrollLeft + track.clientWidth - 30) {
+        track.scrollLeft = l - track.clientWidth / 2 + cur.offsetWidth / 2;
+      }
+    }
+    const sel = document.getElementById("terr");
+    const { tr } = current();
+    sel.innerHTML = tr.territories.map((c) => {
+      const n = S.meta.territories[c] ? S.meta.territories[c][S.lang] : c;
+      return `<option value="${c}"${c === S.terr ? " selected" : ""}>${esc(n)}</option>`;
+    }).join("");
+  }
+
+  function step(d) {
+    const list = chron();
+    const i = list.findIndex((x) => x.id === S.tr) + d;
+    if (i >= 0 && i < list.length) select(list[i].id);
+  }
+
+  function ensureTerr() {
+    const { tr } = current();
+    if (!tr.territories.includes(S.terr)) S.terr = "ES";
+  }
+
+  // ---------------------------------------------------------------- highlights
+  function renderHighlights(tr, rec) {
+    const ol1 = document.getElementById("hl1"), ol2 = document.getElementById("hl2");
+    if (!rec) { ol1.innerHTML = ol2.innerHTML = `<li class="empty">${esc(t("none"))}</li>`; return; }
+    const sw1 = [], sw2 = [];
+    const absIdx = tr.new_cats.indexOf("ABS");
+    tr.old_cats.forEach((oc, b) => {
+      if (SPECIAL.has(oc)) return;
+      tr.new_cats.forEach((nc, a) => {
+        if (SPECIAL.has(nc) || isContinuity(oc, nc)) return;
+        sw1.push({ b, a, v: rec.F[b][a] });
+      });
+      if (absIdx >= 0) sw2.push({ b, a: absIdx, v: rec.F[b][absIdx] });
+    });
+    const li = (x) => {
+      const oc = tr.old_cats[x.b], nc = tr.new_cats[x.a];
+      return `<li data-b="${x.b}" data-a="${x.a}"><span>${sw(oc)}${esc(pname(oc))}<span class="arrow">→</span>${sw(nc)}${esc(pname(nc))}</span>` +
+        `<span class="num">${fmtShort(x.v)} <small>· ${esc(fmtPct(rec.T[x.b][x.a]))} ${esc(t("ofParty", { p: pshort(oc) }))}</small></span></li>`;
+    };
+    ol1.innerHTML = sw1.sort((p, q) => q.v - p.v).slice(0, 5).map(li).join("");
+    ol2.innerHTML = sw2.sort((p, q) => q.v - p.v).slice(0, 5).map(li).join("");
+    for (const el of document.querySelectorAll(".hl li[data-b]")) {
+      el.addEventListener("mousemove", (ev) => showTip(flowTip(tr, rec, +el.dataset.b, +el.dataset.a), ev));
+      el.addEventListener("mouseleave", hideTip);
+    }
+  }
+
+  // ---------------------------------------------------------------- sankey
+  function renderSankey(tr, rec) {
+    const host = document.getElementById("sankey");
+    if (!rec) { host.innerHTML = `<p class="empty">${esc(t("none"))}</p>`; return; }
+    const incO = (c) => (TURNOVER.has(c) ? S.showTurnover : (S.showAbs || !SPECIAL.has(c)));
+    const oIdx = tr.old_cats.map((c, i) => i).filter((i) => incO(tr.old_cats[i]));
+    const nIdx = tr.new_cats.map((c, i) => i).filter((i) => incO(tr.new_cats[i]));
+    let left = oIdx.map((b) => ({ side: "L", i: b, cat: tr.old_cats[b], v: d3.sum(nIdx, (a) => rec.F[b][a]), tot: rec.old_tot[b] }));
+    let right = nIdx.map((a) => ({ side: "R", i: a, cat: tr.new_cats[a], v: d3.sum(oIdx, (b) => rec.F[b][a]), tot: rec.new_tot[a] }));
+    left = left.filter((n) => n.v > 0.5).sort((p, q) => ordIdx(p.cat) - ordIdx(q.cat));
+    right = right.filter((n) => n.v > 0.5).sort((p, q) => ordIdx(p.cat) - ordIdx(q.cat));
+    const W = 1000, nodeW = 12, top = 34, gapX = 210, pad = 7;
+    const H = Math.max(480, 26 * Math.max(left.length, right.length) + 140);
+    const innerH = H - top - 8;
+    const totL = d3.sum(left, (n) => n.v), totR = d3.sum(right, (n) => n.v);
+    const k = Math.min((innerH - pad * (left.length - 1)) / totL, (innerH - pad * (right.length - 1)) / totR);
+    const place = (nodes, x) => {
+      const used = d3.sum(nodes, (n) => n.v) * k + pad * (nodes.length - 1);
+      let y = top + (innerH - used) / 2;
+      for (const n of nodes) { n.x = x; n.y0 = y; n.y1 = y + n.v * k; n.off = 0; y = n.y1 + pad; }
+    };
+    const xL = gapX - nodeW, xR = W - gapX;
+    place(left, xL); place(right, xR);
+    const rIndex = new Map(right.map((n, j) => [n.i, j]));
+    const lIndex = new Map(left.map((n, j) => [n.i, j]));
+    const links = [];
+    for (const L of left) for (const R of right) {
+      const v = rec.F[L.i][R.i];
+      if (v > 0.5) links.push({ L, R, v, w: v * k });
+    }
+    // stacking order inside each node follows the order of the other side
+    for (const L of left) {
+      let y = L.y0;
+      links.filter((l) => l.L === L).sort((p, q) => rIndex.get(p.R.i) - rIndex.get(q.R.i)).forEach((l) => { l.ys = y; y += l.w; });
+    }
+    for (const R of right) {
+      let y = R.y0;
+      links.filter((l) => l.R === R).sort((p, q) => lIndex.get(p.L.i) - lIndex.get(q.L.i)).forEach((l) => { l.yt = y; y += l.w; });
+    }
+    const x0 = xL + nodeW, x1 = xR, xm = (x0 + x1) / 2;
+    const path = (l) => `M${x0},${l.ys}C${xm},${l.ys} ${xm},${l.yt} ${x1},${l.yt}` +
+      `L${x1},${l.yt + l.w}C${xm},${l.yt + l.w} ${xm},${l.ys + l.w} ${x0},${l.ys + l.w}Z`;
+
+    host.innerHTML = "";
+    const svg = d3.select(host).append("svg").attr("viewBox", `0 0 ${W} ${H}`)
+      .attr("role", "img").attr("aria-label", `${t("flowsTitle")}: ${elShort(tr.old)} → ${elShort(tr.new)}`);
+    svg.append("text").attr("class", "colhead").attr("x", xL + nodeW).attr("y", 16).attr("text-anchor", "end").text(elShort(tr.old));
+    svg.append("text").attr("class", "colhead").attr("x", xR).attr("y", 16).text(elShort(tr.new));
+    const gl = svg.append("g");
+    const lp = gl.selectAll("path").data(links).join("path").attr("class", "link").attr("d", path)
+      .attr("fill", (l) => pcolor(l.L.cat)).attr("fill-opacity", 0.42)
+      .on("mousemove", (ev, l) => { lp.attr("fill-opacity", (m) => (m === l ? 0.9 : 0.18)); showTip(flowTip(tr, rec, l.L.i, l.R.i), ev); })
+      .on("mouseleave", () => { lp.attr("fill-opacity", 0.42); hideTip(); });
+    const nodes = left.concat(right);
+    const gn = svg.append("g");
+    gn.selectAll("rect").data(nodes).join("rect")
+      .attr("x", (n) => n.x).attr("y", (n) => n.y0).attr("width", nodeW).attr("height", (n) => Math.max(1, n.y1 - n.y0))
+      .attr("fill", (n) => pcolor(n.cat)).attr("rx", 1.5)
+      .on("mousemove", (ev, n) => {
+        lp.attr("fill-opacity", (l) => (l.L === n || l.R === n ? 0.85 : 0.12));
+        const el = n.side === "L" ? tr.old : tr.new;
+        const elect = n.side === "L" ? rec.electorate_old : rec.electorate_new;
+        showTip(`<b>${esc(pname(n.cat))}</b> <span class="m">${esc(elShort(el))}</span><br>${fmtInt(n.tot)} ${t(SPECIAL.has(n.cat) ? "voters" : "votes")}` +
+          `<br><span class="m">${esc(t("share", { v: fmtPct(100 * n.tot / elect) }))}</span>`, ev);
+      })
+      .on("mouseleave", () => { lp.attr("fill-opacity", 0.42); hideTip(); });
+    const lab = gn.selectAll("g.lab").data(nodes).join("g").attr("class", "lab")
+      .attr("transform", (n) => `translate(${n.side === "L" ? n.x - 8 : n.x + nodeW + 8},${(n.y0 + n.y1) / 2})`)
+      .attr("text-anchor", (n) => (n.side === "L" ? "end" : "start"));
+    lab.filter((n) => n.y1 - n.y0 >= 9).append("text").attr("dy", (n) => (n.y1 - n.y0 >= 24 ? "-0.15em" : "0.35em"))
+      .attr("font-size", 13).attr("font-weight", 650).text((n) => pname(n.cat));
+    lab.filter((n) => n.y1 - n.y0 >= 24).append("text").attr("class", "val").attr("dy", "1.05em").text((n) => fmtShort(n.tot));
+  }
+
+  // ---------------------------------------------------------------- matrix
+  function renderMatrix(tr, rec) {
+    const tab = document.getElementById("matrix");
+    const note = document.getElementById("matrix-note");
+    const hasSurvey = !!(rec && rec.S && tr.survey);
+    const sb = document.querySelector('#mode-seg [data-mode="survey"]');
+    sb.hidden = !hasSurvey;
+    if (S.mode === "survey" && !hasSurvey) S.mode = "transfer";
+    for (const b of document.querySelectorAll("#mode-seg button")) b.setAttribute("aria-pressed", String(b.dataset.mode === S.mode));
+    note.textContent = S.mode === "survey"
+      ? t("mSurveyNote", { src: tr.survey.source[S.lang] })
+      : t(S.mode === "transfer" ? "mTransferNote" : "mOriginNote", { old: elShort(tr.old), new: elShort(tr.new) });
+    if (!rec) { tab.innerHTML = `<tr><td class="empty">${esc(t("none"))}</td></tr>`; return; }
+    const M = S.mode === "transfer" ? rec.T : S.mode === "origin" ? rec.O : rec.S;
+    const rows = tr.old_cats.map((c, i) => i).filter((i) => rec.old_tot[i] > 0).sort((p, q) => ordIdx(tr.old_cats[p]) - ordIdx(tr.old_cats[q]));
+    const cols = tr.new_cats.map((c, i) => i).filter((i) => rec.new_tot[i] > 0).sort((p, q) => ordIdx(tr.new_cats[p]) - ordIdx(tr.new_cats[q]));
+    let h = `<thead><tr><th class="corner">${esc(t("corner"))}<br><span>${esc(elShort(tr.old))} · ${esc(elShort(tr.new))}</span></th>`;
+    for (const a of cols) h += `<th scope="col" title="${esc(pname(tr.new_cats[a]))}"><span class="sw" style="background:${pcolor(tr.new_cats[a])}"></span>${esc(pshort(tr.new_cats[a]))}</th>`;
+    h += "</tr></thead><tbody>";
+    for (const b of rows) {
+      h += `<tr><th scope="row">${sw(tr.old_cats[b])}${esc(pname(tr.old_cats[b]))}</th>`;
+      for (const a of cols) {
+        const v = M[b][a];
+        if (v === null) { h += `<td class="c na" data-b="${b}" data-a="${a}"></td>`; continue; }
+        const al = Math.min(1, Math.sqrt(Math.max(0, v) / 100)) * 0.92;
+        const fg = al > 0.5 ? "var(--paper)" : "var(--ink)";
+        const diag = isContinuity(tr.old_cats[b], tr.new_cats[a]) ? " diag" : "";
+        h += `<td class="c${diag}" data-b="${b}" data-a="${a}" style="background:rgba(var(--cell),${al.toFixed(3)});color:${fg}">${v >= 0.05 ? esc(locale().format(".1f")(v)) : "·"}</td>`;
+      }
+      h += "</tr>";
+    }
+    tab.innerHTML = h + "</tbody>";
+    for (const td of tab.querySelectorAll("td.c")) {
+      td.addEventListener("mousemove", (ev) => showTip(flowTip(tr, rec, +td.dataset.b, +td.dataset.a), ev));
+      td.addEventListener("mouseleave", hideTip);
+    }
+  }
+
+  // ---------------------------------------------------------------- party cards
+  function bar(segs, total, tr, rec, kind, fixed) {
+    let h = `<div class="bar">`;
+    for (const s of segs) {
+      if (s.v < 0.05) continue;
+      const lbl = s.v >= 22 ? `<em>${esc(pshort(s.cat))} ${Math.round(s.v)}%</em>` : "";
+      h += `<span style="flex:${s.v} 0 0;background:${pcolor(s.cat)}" data-b="${kind === "to" ? fixed : s.i}" data-a="${kind === "to" ? s.i : fixed}">${lbl}</span>`;
+    }
+    h += "</div>";
+    const top3 = segs.filter((s) => s.v >= 0.05).sort((p, q) => q.v - p.v).slice(0, 4)
+      .map((s) => `<span>${esc(pshort(s.cat))}\u00a0${esc(fmtPct(s.v))}</span>`).join("");
+    return h + `<div class="legend-line">${top3}</div>`;
+  }
+
+  function renderCards(tr, rec) {
+    const host = document.getElementById("cards");
+    if (!rec) { host.innerHTML = `<p class="empty">${esc(t("none"))}</p>`; return; }
+    const cats = Array.from(new Set(tr.old_cats.concat(tr.new_cats)));
+    const items = cats.map((c) => {
+      const b = tr.old_cats.indexOf(c), a = tr.new_cats.indexOf(c);
+      return { c, b, a, ov: b >= 0 ? rec.old_tot[b] : 0, nv: a >= 0 ? rec.new_tot[a] : 0 };
+    }).filter((x) => x.ov > 0 || x.nv > 0);
+    items.sort((p, q) => (SPECIAL.has(p.c) - SPECIAL.has(q.c)) || (q.nv - p.nv) || (q.ov - p.ov));
+    let h = "";
+    for (const x of items) {
+      const color = pcolor(x.c);
+      let votes = "";
+      if (x.ov > 0) votes += `<span>${esc(elShort(tr.old))}: ${fmtInt(x.ov)}</span>`;
+      if (x.ov > 0 && x.nv > 0) votes += `<span class="arrow">→</span>`;
+      if (x.nv > 0) votes += `<span>${esc(elShort(tr.new))}: ${fmtInt(x.nv)}</span>`;
+      if (x.ov > 0 && x.nv > 0) {
+        const d = x.nv - x.ov;
+        votes += `<span class="delta">(${d >= 0 ? "+" : "−"}${fmtShort(Math.abs(d))})</span>`;
+      }
+      let body = "";
+      if (x.b >= 0 && x.ov > 0) {
+        const segs = tr.new_cats.map((nc, a) => ({ cat: nc, i: a, v: rec.T[x.b][a] }))
+          .filter((s) => rec.new_tot[s.i] > 0).sort((p, q) => ordIdx(p.cat) - ordIdx(q.cat));
+        body += `<div><p class="lbl">${esc(t("wentTo", { old: elShort(tr.old), new: elShort(tr.new) }))}</p>${bar(segs, 100, tr, rec, "to", x.b)}</div>`;
+      }
+      if (x.a >= 0 && x.nv > 0) {
+        const segs = tr.old_cats.map((oc, b) => ({ cat: oc, i: b, v: rec.O[b][x.a] }))
+          .filter((s) => rec.old_tot[s.i] > 0).sort((p, q) => ordIdx(p.cat) - ordIdx(q.cat));
+        body += `<div><p class="lbl">${esc(t("cameFrom", { old: elShort(tr.old), new: elShort(tr.new) }))}</p>${bar(segs, 100, tr, rec, "from", x.a)}</div>`;
+      }
+      const full = party(x.c)["full_" + S.lang];
+      h += `<article class="card" style="--c:${color}"><h3>${esc(pname(x.c))}</h3>` +
+        (full && full !== pname(x.c) ? `<p class="full">${esc(full)}</p>` : "") +
+        `<div class="votes">${votes}</div>${body}</article>`;
+    }
+    host.innerHTML = h;
+    for (const sp of host.querySelectorAll(".bar span[data-b]")) {
+      sp.addEventListener("mousemove", (ev) => showTip(flowTip(tr, rec, +sp.dataset.b, +sp.dataset.a), ev));
+      sp.addEventListener("mouseleave", hideTip);
+    }
+  }
+
+  // ---------------------------------------------------------------- state and routing
+  const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
+  function writeHash() {
+    const { tr } = current();
+    const h = `${slug(elShort(tr.old))}-${slug(elShort(tr.new))}-${S.terr.toLowerCase()}`;
+    if (location.hash.slice(1) !== h) { try { history.replaceState(null, "", "#" + h); } catch (e) { /* ignore */ } }
+  }
+  function readHash() {
+    const h = location.hash.slice(1);
+    if (!h) return;
+    const parts = h.split("-");
+    if (parts.length !== 3) return;
+    const tr = S.meta.transitions.find((x) => slug(elShort(x.old)) === parts[0] && slug(elShort(x.new)) === parts[1]);
+    if (!tr) return;
+    S.tr = tr.id;
+    const terr = parts[2].toUpperCase();
+    if (tr.territories.includes(terr)) S.terr = terr;
+  }
+
+  function update() {
+    const { tr, rec } = current();
+    renderControls();
+    renderText();
+    renderHighlights(tr, rec);
+    renderSankey(tr, rec);
+    renderMatrix(tr, rec);
+    renderCards(tr, rec);
+    writeHash();
+    try { localStorage.setItem("voteflow-lang", S.lang); } catch (e) { /* ignore */ }
+  }
+
+  // Records of a transition are fetched when it is first shown (all inlined in the standalone file).
+  const loaded = new Set();
+  function ensureLoaded(id) {
+    if (window.VOTEFLOW_DATA || loaded.has(id)) return Promise.resolve();
+    return fetch(`data/flows/${id}.json`).then((r) => r.json()).then((recs) => {
+      for (const r of recs) S.recs.set(r.tr + "|" + r.terr, r);
+      loaded.add(id);
+    });
+  }
+  function select(id) {
+    hideTip();
+    return ensureLoaded(id).then(() => { S.tr = id; ensureTerr(); update(); });
+  }
+
+  function wire() {
+    document.getElementById("tl-prev").addEventListener("click", () => step(-1));
+    document.getElementById("tl-next").addEventListener("click", () => step(1));
+    document.getElementById("timeline").addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        e.preventDefault();
+        step(e.key === "ArrowLeft" ? -1 : 1);
+        const cur = document.querySelector('.tl-seg[aria-pressed="true"]');
+        if (cur) cur.focus();
+      }
+    });
+    document.getElementById("terr").addEventListener("change", (e) => { S.terr = e.target.value; update(); });
+    document.getElementById("abs").addEventListener("change", (e) => { S.showAbs = e.target.checked; const { tr, rec } = current(); renderSankey(tr, rec); });
+    document.getElementById("turnover").addEventListener("change", (e) => { S.showTurnover = e.target.checked; const { tr, rec } = current(); renderSankey(tr, rec); });
+    for (const b of document.querySelectorAll("#lang-seg button")) b.addEventListener("click", () => { S.lang = b.dataset.lang; update(); });
+    for (const b of document.querySelectorAll("#mode-seg button")) b.addEventListener("click", () => {
+      S.mode = b.dataset.mode; renderText(); const { tr, rec } = current(); renderMatrix(tr, rec);
+    });
+    window.addEventListener("hashchange", () => { const prev = S.tr; readHash(); const id = S.tr; S.tr = prev; select(id); });
+  }
+
+  async function load() {
+    if (window.VOTEFLOW_DATA) return window.VOTEFLOW_DATA;
+    const meta = await fetch("data/meta.json").then((r) => r.json());
+    return { meta, records: [] };
+  }
+
+  load().then(({ meta, records }) => {
+    S.meta = meta;
+    for (const r of records) S.recs.set(r.tr + "|" + r.terr, r);
+    S.tr = meta.transitions[0].id;
+    try { const l = localStorage.getItem("voteflow-lang"); if (l === "en" || l === "es") S.lang = l; } catch (e) { /* ignore */ }
+    readHash();
+    wire();
+    return select(S.tr);
+  }).catch((err) => {
+    document.getElementById("headline").textContent = "VoteFlow";
+    document.getElementById("notice").textContent = "No se pudieron cargar los datos / Could not load the data: " + err;
+  });
+})();
+</script>
+</body>
+</html>
