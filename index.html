@@ -122,6 +122,32 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
 #tip .m { opacity: .7; font-family: var(--mono); font-size: 12px; }
 #tip b { font-weight: 700; }
 .empty { color: var(--muted); font-style: italic; }
+/* Model vs CIS survey */
+:root { --more: 47, 103, 177; --less: 196, 78, 52; }
+:root[data-theme="dark"] { --more: 110, 160, 230; --less: 236, 120, 90; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --more: 110, 160, 230; --less: 236, 120, 90; } }
+.cmp { display: grid; gap: 18px; }
+.cmp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.tile { background: var(--panel); border: 1px solid var(--rule); border-radius: 3px; padding: 10px 12px; }
+.tile .k { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.tile .v { font-family: var(--display); font-stretch: 75%; font-weight: 700; font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tile .v small { font-family: var(--body); font-stretch: 100%; font-weight: 400; font-size: 13px; color: var(--muted); margin-left: 4px; }
+.cmp-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 22px; align-items: start; }
+@media (max-width: 820px) { .cmp-grid { grid-template-columns: 1fr; } }
+.cmp-grid.solo { grid-template-columns: minmax(0, 720px); }
+.cmp h3 { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 6px; }
+.cmp svg { display: block; width: 100%; height: auto; overflow: visible; }
+.cmp svg text { fill: var(--muted); font: 400 11px var(--mono); }
+.cmp svg .axis line, .cmp svg .axis path { stroke: var(--rule); }
+.cmp svg .grid line { stroke: var(--rule); stroke-opacity: .6; }
+.cmp svg .cur text.lbl { fill: var(--ink); font-weight: 600; }
+.cmp .legend { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; }
+.cmp .legend span { white-space: nowrap; }
+.cmp .key { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -2px; margin-right: 5px; }
+table.matrix td.cmpc { line-height: 1.15; padding: 4px 7px; }
+table.matrix td.cmpc b { font-weight: 600; display: block; }
+table.matrix td.cmpc span { display: block; font-size: 11px; opacity: .75; }
+table.matrix td.cmpc.nos { color: var(--muted); }
 @media (max-width: 520px) { .wrap { padding: 0 16px 40px; } h1 { font-size: 34px; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -163,10 +189,17 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
     <div class="section-head">
       <h2 id="matrix-title"></h2>
       <div class="seg" id="mode-seg" role="group">
-        <button type="button" data-mode="transfer"></button><button type="button" data-mode="origin"></button><button type="button" data-mode="survey" hidden></button>
+        <button type="button" data-mode="transfer"></button><button type="button" data-mode="origin"></button><button type="button" data-mode="survey" hidden></button><button type="button" data-mode="compare" hidden></button>
       </div>
     </div>
     <p class="note" id="matrix-note"></p>
+    <div class="cmp" id="cmp" hidden>
+      <div class="cmp-stats" id="cmp-stats"></div>
+      <div class="cmp-grid">
+        <div><h3 id="cmp-sc-title"></h3><div id="cmp-scatter"></div><p class="note" id="cmp-sc-note"></p></div>
+        <div><h3 id="cmp-ov-title"></h3><div id="cmp-overview"></div><p class="note" id="cmp-ov-note"></p></div>
+      </div>
+    </div>
     <div class="matrix-wrap"><table class="matrix" id="matrix"></table></div>
   </section>
 
@@ -197,7 +230,7 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
       sub: "Del {old} al {new} · {terr}",
       prelim: "Preliminar",
       notice: "Estimaciones de un modelo bayesiano a partir de los resultados oficiales por municipio, con intervalos del 90 %.",
-      surveyNotice: " El modelo da bastante más fidelidad a los grandes partidos que la encuesta postelectoral del CIS de 2023, y ninguna de las dos fuentes es exacta (véase «Cómo se calcula»).",
+      surveyNotice: " Para esta transición hay una encuesta postelectoral del CIS: la pestaña «Modelo vs CIS» compara las dos estimaciones, y ninguna de las dos es exacta (véase «Cómo se calcula»).",
       calibNotice: " Los intervalos se calibraron con elecciones simuladas sobre 2019–2023; en transiciones antiguas, con grandes cambios de participación o de partidos, pueden quedarse cortos.",
       timeline: "Elecciones",
       prev: "Transición anterior",
@@ -215,7 +248,21 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
       mTransfer: "¿A dónde fueron?",
       mOrigin: "¿De dónde vienen?",
       mSurvey: "Encuesta CIS",
-      mSurveyNote: "{src}. Cada fila suma 100. Sin dato: menos de 40 encuestados o categoría no comparable (en 2023 el CIS no distingue a la CUP).",
+      mSurveyNote: "{src}. Cada fila suma 100. Sin dato: menos de 40 encuestados o categoría que la encuesta no distingue{merged}.",
+      mCompare: "Modelo vs CIS",
+      mCompareNote: "Cada casilla: el modelo arriba y la encuesta del CIS abajo (% de los votantes de cada opción en {old} que fueron a cada opción en {new}). Azul: el modelo da más que la encuesta; rojo: menos. {src}.",
+      mCompareNone: "No hay encuesta postelectoral del CIS con recuerdo de voto para {old} → {new}. El gráfico muestra las transiciones que sí la tienen.",
+      cmpCorr: "Correlación", cmpMad: "Diferencia media", cmpPts: "puntos", cmpOverlap: "Intervalos que se solapan",
+      cmpResp: "Encuestados", cmpCells: "{n} casillas",
+      cmpScTitle: "Modelo frente a encuesta, casilla a casilla",
+      cmpScNote: "Cada punto es una casilla de la matriz con al menos un 2 % en alguna de las dos fuentes, coloreada por la opción de origen. Sobre la diagonal, el modelo y la encuesta coinciden. Escala de raíz cuadrada.",
+      cmpX: "Encuesta CIS (%)", cmpY: "Modelo (%)",
+      cmpOvTitle: "Diferencia media entre modelo y encuesta, por transición",
+      cmpOvNote: "Puntos porcentuales, en toda España; cada barra es la transición que acaba en esas elecciones. Sin barra: no hay encuesta postelectoral con recuerdo de voto de las elecciones anteriores. Pulse una barra para ir a esa transición.",
+      noSurvey: "sin encuesta",
+      tipCmp: "Modelo {m} [{mlo}–{mhi}] · Encuesta {s} [{slo}–{shi}]",
+      tipOv: "Correlación {r} · diferencia media {mad} puntos · {n} casillas · estudio {study}",
+      cmpMore: "El modelo da más", cmpLess: "La encuesta da más",
       tipSurvey: "{s}: {v} [{lo}–{hi}]",
       mTransferNote: "Cada fila suma 100: cómo se repartieron en el {new} los electores de cada opción del {old}.",
       mOriginNote: "Cada columna suma 100: qué habían votado en el {old} los electores de cada opción del {new}.",
@@ -236,7 +283,7 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
         "La incertidumbre se calcula con un bootstrap bayesiano: el modelo se reajusta {r} veces dando pesos aleatorios a los municipios. Esos intervalos se amplían {k} veces porque, en elecciones simuladas sobre los municipios reales con transferencias conocidas, solo así contienen el valor verdadero en torno al 90 % de las veces: las diferencias de comportamiento entre municipios de una misma provincia sesgan algo las estimaciones.",
         "Limitaciones: el modelo supone que, dentro de cada provincia, los municipios solo se diferencian al azar en cómo cambian sus votantes. Si los cambios dependen de la composición de cada lugar (por ejemplo, si los votantes del PSOE se pasan más a Sumar donde Sumar es fuerte), las estimaciones pueden sesgarse. Tampoco se modelan aún los cambios del censo (fallecimientos, nuevos votantes, mudanzas) ni se incluyen los electores residentes en el extranjero (CERA).",
       ],
-      surveyPara: "Contraste con la encuesta del CIS. La encuesta postelectoral del CIS de 2023 y el modelo coinciden en las grandes tendencias, como el paso de la mayoría de los votantes de Ciudadanos al PP ({csm} % en el modelo, {css} % en la encuesta), pero el modelo da más fidelidad a los grandes partidos: el PSOE conserva al {pm} % de sus votantes de 2019 en el modelo y al {ps} % en la encuesta. Ninguna de las dos fuentes es la verdad. Aplicada a cada municipio, la matriz de la encuesta reproduce peor los resultados de 2023 que la del modelo, y el modelo sí recupera una matriz como la de la encuesta cuando se simulan elecciones con ella. Pero el modelo puede sesgarse si los votantes cambian de forma distinta según la composición de cada lugar, y la encuesta arrastra errores de recuerdo de voto (hubo dos elecciones en 2019) y una muestra muy desequilibrada, que aquí se ha ajustado a los resultados oficiales. La pestaña «Encuesta CIS» de la matriz muestra su estimación completa.",
+      surveyPara: "Contraste con la encuesta del CIS. La encuesta postelectoral del CIS (estudio {study}) pregunta qué se votó en {new} y qué se recuerda haber votado en {old}. Ajustada a los resultados oficiales, su matriz y la del modelo tienen una correlación de {r} en las casillas comparables, con una diferencia media de {mad} puntos; en las {k} transiciones con encuesta, esa diferencia va de {lo} a {hi} puntos. Ninguna de las dos fuentes es la verdad. El modelo puede sesgarse si los votantes cambian de forma distinta según la composición de cada lugar, y la encuesta arrastra errores de recuerdo de voto y una muestra desequilibrada, que aquí se ajusta a los resultados oficiales. La pestaña «Modelo vs CIS» de la matriz muestra la comparación completa.",
       source: "Datos: Ministerio del Interior, resultados oficiales",
       generated: "Generado el {d}",
       code: "Código abierto (MIT)",
@@ -248,7 +295,7 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
       sub: "From {old} to {new} · {terr}",
       prelim: "Preliminary",
       notice: "Estimates from a Bayesian model fitted to official results by municipality, with 90% intervals.",
-      surveyNotice: " The model gives the large parties considerably more loyalty than the 2023 CIS post-election survey, and neither source is exact (see “How it is estimated”).",
+      surveyNotice: " There is a CIS post-election survey for this transition: the “Model vs CIS” tab compares the two estimates, and neither is exact (see “How it is estimated”).",
       calibNotice: " Intervals were calibrated on simulated elections based on 2019–2023; for older transitions, with large changes in turnout or in the parties, they may be too narrow.",
       timeline: "Elections",
       prev: "Previous transition",
@@ -266,7 +313,21 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
       mTransfer: "Where did they go?",
       mOrigin: "Where did they come from?",
       mSurvey: "CIS survey",
-      mSurveyNote: "{src}. Each row adds to 100. Blank: fewer than 40 respondents or category not comparable (in 2023 the CIS does not code CUP separately).",
+      mSurveyNote: "{src}. Each row adds to 100. Blank: fewer than 40 respondents or a category the survey does not code{merged}.",
+      mCompare: "Model vs CIS",
+      mCompareNote: "Each cell: the model on top and the CIS survey below (% of each option’s {old} voters who went to each option in {new}). Blue: the model gives more than the survey; red: less. {src}.",
+      mCompareNone: "There is no CIS post-election survey with recalled vote for {old} → {new}. The chart shows the transitions that have one.",
+      cmpCorr: "Correlation", cmpMad: "Mean difference", cmpPts: "points", cmpOverlap: "Overlapping intervals",
+      cmpResp: "Respondents", cmpCells: "{n} cells",
+      cmpScTitle: "Model against survey, cell by cell",
+      cmpScNote: "Each dot is a matrix cell where either source gives at least 2%, coloured by the option of origin. On the diagonal, the model and the survey agree. Square-root scale.",
+      cmpX: "CIS survey (%)", cmpY: "Model (%)",
+      cmpOvTitle: "Mean difference between model and survey, by transition",
+      cmpOvNote: "Percentage points, for Spain as a whole; each bar is the transition ending at that election. No bar: no post-election survey with recalled vote in the previous election. Click a bar to go to that transition.",
+      noSurvey: "no survey",
+      tipCmp: "Model {m} [{mlo}–{mhi}] · Survey {s} [{slo}–{shi}]",
+      tipOv: "Correlation {r} · mean difference {mad} points · {n} cells · study {study}",
+      cmpMore: "Model gives more", cmpLess: "Survey gives more",
       tipSurvey: "{s}: {v} [{lo}–{hi}]",
       mTransferNote: "Each row adds to 100: how voters of each {old} option split in {new}.",
       mOriginNote: "Each column adds to 100: what voters of each {new} option had voted in {old}.",
@@ -287,7 +348,7 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
         "Uncertainty comes from a Bayesian bootstrap: the model is refitted {r} times with random weights on the municipalities. Those intervals are widened {k} times because, in simulated elections on the real municipalities with known transfers, only then do they contain the true value about 90% of the time: differences in behaviour between municipalities of the same province bias the estimates somewhat.",
         "Limitations: the model assumes that, within each province, municipalities differ only at random in how their voters move. If the moves depend on the make-up of each place (for example, if PSOE voters switch to Sumar more where Sumar is strong), the estimates can be biased. Changes in the electorate (deaths, first-time voters, people moving) are not yet modelled separately, and voters living abroad (CERA) are not included.",
       ],
-      surveyPara: "Comparison with the CIS survey. The 2023 CIS post-election survey and the model agree on the big trends, such as most Ciudadanos voters moving to the PP ({csm}% in the model, {css}% in the survey), but the model gives the large parties more loyalty: the PSOE keeps {pm}% of its 2019 voters in the model and {ps}% in the survey. Neither source is the truth. Applied to every municipality, the survey's matrix reproduces the 2023 results worse than the model's, and the model does recover a survey-like matrix when elections are simulated with it. But the model can be biased if voters move differently depending on the make-up of each place, and the survey carries errors in recalled vote (there were two elections in 2019) and a very unbalanced sample, adjusted here to the official results. The “CIS survey” tab of the matrix shows its full estimate.",
+      surveyPara: "Comparison with the CIS survey. The CIS post-election survey (study {study}) asks how people voted in {new} and how they remember voting in {old}. Adjusted to the official results, its matrix and the model’s have a correlation of {r} over the comparable cells, with a mean difference of {mad} points; across the {k} transitions with a survey, that difference ranges from {lo} to {hi} points. Neither source is the truth. The model can be biased if voters move differently depending on the make-up of each place, and the survey carries errors in recalled vote and an unbalanced sample, adjusted here to the official results. The “Model vs CIS” tab of the matrix shows the full comparison.",
       source: "Data: Spanish Ministry of the Interior, official results",
       generated: "Generated {d}",
       code: "Open source (MIT)",
@@ -405,6 +466,7 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
     document.querySelector('#mode-seg [data-mode="transfer"]').textContent = t("mTransfer");
     document.querySelector('#mode-seg [data-mode="origin"]').textContent = t("mOrigin");
     document.querySelector('#mode-seg [data-mode="survey"]').textContent = t("mSurvey");
+    document.querySelector('#mode-seg [data-mode="compare"]').textContent = t("mCompare");
     const nf = locale().format(".1f");
     const fill = (p) => p.split("{n}").join(fmtInt(tr.units || 0)).split("{r}").join(String(tr.replicates || "—"))
       .split("{k}").join(nf(tr.interval_scale || 1));
@@ -412,13 +474,13 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
     if (!tr.replicates) paras = paras.filter((p, i) => i !== 2);
     let html = paras.map((p) => `<p>${esc(fill(p))}</p>`).join("");
     const es = S.recs.get(S.tr + "|ES");
-    if (tr.survey && es && es.S) {
-      const val = (M, o, n) => {
-        const b = tr.old_cats.indexOf(o), a = tr.new_cats.indexOf(n);
-        return b >= 0 && a >= 0 && M[b][a] !== null ? nf(M[b][a]) : "—";
-      };
-      html += `<p>${esc(t("surveyPara", { csm: val(es.T, "CS", "PP"), css: val(es.S, "CS", "PP"),
-        pm: val(es.T, "PSOE", "PSOE"), ps: val(es.S, "PSOE", "PSOE") }))}</p>`;
+    const met = tr.survey && tr.survey.metrics;
+    if (met) {
+      const all = S.meta.transitions.filter((x) => x.survey && x.survey.metrics).map((x) => x.survey.metrics.mad);
+      const f2 = locale().format(".2f");
+      html += `<p>${esc(t("surveyPara", { study: tr.survey.study, old: elShort(tr.old), new: elShort(tr.new),
+        r: met.corr === null ? "—" : f2(met.corr), mad: nf(met.mad), k: all.length,
+        lo: nf(Math.min(...all)), hi: nf(Math.max(...all)) }))}</p>`;
     }
     document.getElementById("method").innerHTML = html;
     const d = new Date(S.meta.generated);
@@ -586,15 +648,29 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
     const tab = document.getElementById("matrix");
     const note = document.getElementById("matrix-note");
     const hasSurvey = !!(rec && rec.S && tr.survey);
-    const sb = document.querySelector('#mode-seg [data-mode="survey"]');
-    sb.hidden = !hasSurvey;
+    const anySurvey = S.meta.transitions.some((x) => x.survey && x.survey.metrics);
+    document.querySelector('#mode-seg [data-mode="survey"]').hidden = !hasSurvey;
+    document.querySelector('#mode-seg [data-mode="compare"]').hidden = !anySurvey;
     if (S.mode === "survey" && !hasSurvey) S.mode = "transfer";
+    if (S.mode === "compare" && !anySurvey) S.mode = "transfer";
     for (const b of document.querySelectorAll("#mode-seg button")) b.setAttribute("aria-pressed", String(b.dataset.mode === S.mode));
+    const merged = () => {
+      const m = (tr.survey.merged && tr.survey.merged.new || []).concat(tr.survey.merged && tr.survey.merged.old || []);
+      return m.length ? ` (${Array.from(new Set(m)).map(pname).join(", ")})` : "";
+    };
+    const cmp = S.mode === "compare";
+    document.getElementById("cmp").hidden = !cmp;
+    document.querySelector("#s-matrix .matrix-wrap").hidden = cmp && !hasSurvey;
     note.textContent = S.mode === "survey"
-      ? t("mSurveyNote", { src: tr.survey.source[S.lang] })
-      : t(S.mode === "transfer" ? "mTransferNote" : "mOriginNote", { old: elShort(tr.old), new: elShort(tr.new) });
+      ? t("mSurveyNote", { src: tr.survey.source[S.lang], merged: merged() })
+      : cmp
+        ? (hasSurvey ? t("mCompareNote", { old: elShort(tr.old), new: elShort(tr.new), src: tr.survey.source[S.lang] })
+          : t("mCompareNone", { old: elShort(tr.old), new: elShort(tr.new) }))
+        : t(S.mode === "transfer" ? "mTransferNote" : "mOriginNote", { old: elShort(tr.old), new: elShort(tr.new) });
+    if (cmp) renderCompare(tr, rec, hasSurvey);
     if (!rec) { tab.innerHTML = `<tr><td class="empty">${esc(t("none"))}</td></tr>`; return; }
-    const M = S.mode === "transfer" ? rec.T : S.mode === "origin" ? rec.O : rec.S;
+    if (cmp && !hasSurvey) { tab.innerHTML = ""; return; }
+    const M = S.mode === "transfer" || cmp ? rec.T : S.mode === "origin" ? rec.O : rec.S;
     const rows = tr.old_cats.map((c, i) => i).filter((i) => rec.old_tot[i] > 0).sort((p, q) => ordIdx(tr.old_cats[p]) - ordIdx(tr.old_cats[q]));
     const cols = tr.new_cats.map((c, i) => i).filter((i) => rec.new_tot[i] > 0).sort((p, q) => ordIdx(tr.new_cats[p]) - ordIdx(tr.new_cats[q]));
     let h = `<thead><tr><th class="corner">${esc(t("corner"))}<br><span>${esc(elShort(tr.old))} · ${esc(elShort(tr.new))}</span></th>`;
@@ -604,6 +680,7 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
       h += `<tr><th scope="row">${sw(tr.old_cats[b])}${esc(pname(tr.old_cats[b]))}</th>`;
       for (const a of cols) {
         const v = M[b][a];
+        if (cmp) { h += cmpCell(tr, rec, b, a); continue; }
         if (v === null) { h += `<td class="c na" data-b="${b}" data-a="${a}"></td>`; continue; }
         const al = Math.min(1, Math.sqrt(Math.max(0, v) / 100)) * 0.92;
         const fg = al > 0.5 ? "var(--paper)" : "var(--ink)";
@@ -614,9 +691,122 @@ footer { padding: 18px 0 0; font: 400 12px var(--mono); color: var(--muted); dis
     }
     tab.innerHTML = h + "</tbody>";
     for (const td of tab.querySelectorAll("td.c")) {
-      td.addEventListener("mousemove", (ev) => showTip(flowTip(tr, rec, +td.dataset.b, +td.dataset.a), ev));
+      td.addEventListener("mousemove", (ev) => showTip(cmp && rec.S[+td.dataset.b][+td.dataset.a] !== null
+        ? cmpTip(tr, rec, +td.dataset.b, +td.dataset.a) : flowTip(tr, rec, +td.dataset.b, +td.dataset.a), ev));
       td.addEventListener("mouseleave", hideTip);
     }
+  }
+
+  // ---------------------------------------------------------------- model vs CIS survey
+  const f1 = (v) => locale().format(".1f")(v);
+  function cmpCell(tr, rec, b, a) {
+    const m = rec.T[b][a], s = rec.S[b][a];
+    const diag = isContinuity(tr.old_cats[b], tr.new_cats[a]) ? " diag" : "";
+    if (s === null) return `<td class="c cmpc nos${diag}" data-b="${b}" data-a="${a}"><b>${m >= 0.05 ? esc(f1(m)) : "·"}</b><span>—</span></td>`;
+    const d = m - s, al = Math.min(1, Math.abs(d) / 20) * 0.85;
+    const bg = Math.abs(d) < 0.5 ? "transparent" : `rgba(var(${d > 0 ? "--more" : "--less"}),${al.toFixed(3)})`;
+    const fg = al > 0.55 ? "#fff" : "var(--ink)";
+    return `<td class="c cmpc${diag}" data-b="${b}" data-a="${a}" style="background:${bg};color:${fg}"><b>${m >= 0.05 ? esc(f1(m)) : "·"}</b><span>${s >= 0.05 ? esc(f1(s)) : "·"}</span></td>`;
+  }
+
+  function cmpTip(tr, rec, b, a) {
+    const oc = tr.old_cats[b], nc = tr.new_cats[a];
+    return `<b>${esc(pname(oc))}</b> <span class="m">${esc(elShort(tr.old))}</span> → <b>${esc(pname(nc))}</b> <span class="m">${esc(elShort(tr.new))}</span><br>` +
+      esc(t("tipCmp", { m: fmtPct(rec.T[b][a]), mlo: fmtPct(rec.Tlo[b][a]), mhi: fmtPct(rec.Thi[b][a]),
+        s: fmtPct(rec.S[b][a]), slo: fmtPct(rec.Slo[b][a]), shi: fmtPct(rec.Shi[b][a]) })) +
+      (rec.Sn ? `<br><span class="m">${esc(t("cmpResp"))}: ${fmtInt(rec.Sn[b])}</span>` : "");
+  }
+
+  function renderCompare(tr, rec, hasSurvey) {
+    const met = hasSurvey ? rec.Smet : null;
+    const f2 = locale().format(".2f");
+    const tile = (k, v, u) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${v}${u ? `<small>${esc(u)}</small>` : ""}</div></div>`;
+    document.getElementById("cmp-stats").innerHTML = met
+      ? tile(t("cmpCorr"), met.corr === null ? "—" : esc(f2(met.corr)), t("cmpCells", { n: met.cells })) +
+        tile(t("cmpMad"), esc(f1(met.mad)), t("cmpPts")) +
+        tile(t("cmpOverlap"), esc(Math.round(100 * met.overlap) + (S.lang === "es" ? " %" : "%")), "") +
+        tile(t("cmpResp"), esc(fmtInt(rec.Sresp || 0)), "")
+      : "";
+    document.getElementById("cmp-sc-title").textContent = t("cmpScTitle");
+    document.getElementById("cmp-sc-note").textContent = t("cmpScNote");
+    document.getElementById("cmp-ov-title").textContent = t("cmpOvTitle");
+    document.getElementById("cmp-ov-note").textContent = t("cmpOvNote");
+    document.getElementById("cmp-scatter").parentElement.hidden = !met;
+    document.querySelector("#cmp .cmp-grid").classList.toggle("solo", !met);
+    if (met) renderScatter(tr, rec);
+    renderOverview(tr);
+  }
+
+  function renderScatter(tr, rec) {
+    const host = document.getElementById("cmp-scatter");
+    const pts = [];
+    tr.old_cats.forEach((oc, b) => tr.new_cats.forEach((nc, a) => {
+      const s = rec.S[b][a], m = rec.T[b][a];
+      if (s === null || (s < 2 && m < 2) || rec.old_tot[b] <= 0 || rec.new_tot[a] <= 0) return;
+      pts.push({ b, a, s, m, c: oc });
+    }));
+    const W = 420, H = 400, ml = 44, mr = 12, mt = 10, mb = 40;
+    const x = d3.scaleSqrt().domain([0, 100]).range([ml, W - mr]);
+    const y = d3.scaleSqrt().domain([0, 100]).range([H - mb, mt]);
+    const ticks = [0, 2, 10, 25, 50, 75, 100];
+    const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", t("cmpScTitle"));
+    const g = svg.append("g").attr("class", "grid");
+    g.selectAll("line.v").data(ticks).join("line").attr("x1", x).attr("x2", x).attr("y1", mt).attr("y2", H - mb);
+    g.selectAll("line.h").data(ticks).join("line").attr("y1", y).attr("y2", y).attr("x1", ml).attr("x2", W - mr);
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${H - mb})`).call(d3.axisBottom(x).tickValues(ticks).tickSize(3));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${ml},0)`).call(d3.axisLeft(y).tickValues(ticks).tickSize(3));
+    svg.append("line").attr("x1", x(0)).attr("y1", y(0)).attr("x2", x(100)).attr("y2", y(100))
+      .attr("stroke", "var(--muted)").attr("stroke-dasharray", "4 3").attr("stroke-width", 1);
+    svg.append("text").attr("x", (ml + W - mr) / 2).attr("y", H - 6).attr("text-anchor", "middle").text(t("cmpX"));
+    svg.append("text").attr("transform", `translate(11,${(mt + H - mb) / 2}) rotate(-90)`).attr("text-anchor", "middle").text(t("cmpY"));
+    const dots = svg.append("g").selectAll("g").data(pts).join("g").attr("transform", (p) => `translate(${x(p.s)},${y(p.m)})`);
+    dots.append("circle").attr("r", 5).attr("fill", (p) => pcolor(p.c)).attr("stroke", "var(--panel)").attr("stroke-width", 2);
+    dots.append("circle").attr("r", 11).attr("fill", "transparent")
+      .on("mousemove", (ev, p) => showTip(cmpTip(tr, rec, p.b, p.a), ev)).on("mouseleave", hideTip);
+    host.innerHTML = "";
+    host.appendChild(svg.node());
+  }
+
+  function renderOverview(tr) {
+    const host = document.getElementById("cmp-overview");
+    const list = chron();
+    const W = 560, H = 270, ml = 30, mr = 8, mt = 22, mb = 58;
+    const vals = list.map((x) => (x.survey && x.survey.metrics ? x.survey.metrics.mad : null));
+    const ymax = Math.max(8, Math.ceil(Math.max(...vals.filter((v) => v !== null))));
+    const x = d3.scaleBand().domain(list.map((d) => d.id)).range([ml, W - mr]).paddingInner(0.28).paddingOuter(0.1);
+    const y = d3.scaleLinear().domain([0, ymax]).range([H - mb, mt]);
+    const svg = d3.create("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", t("cmpOvTitle"));
+    svg.append("g").attr("class", "grid").selectAll("line").data(y.ticks(4)).join("line")
+      .attr("x1", ml).attr("x2", W - mr).attr("y1", y).attr("y2", y);
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${ml},0)`).call(d3.axisLeft(y).ticks(4).tickSize(0)).call((g) => g.select("path").remove());
+    const bars = svg.append("g").selectAll("g").data(list).join("g")
+      .attr("class", (d) => (d.id === tr.id ? "cur" : "")).style("cursor", (d) => (d.survey && d.survey.metrics ? "pointer" : "default"));
+    bars.each(function (d) {
+      const gg = d3.select(this), v = d.survey && d.survey.metrics ? d.survey.metrics.mad : null;
+      const cx = x(d.id) + x.bandwidth() / 2;
+      if (v === null) {
+        gg.append("text").attr("x", cx).attr("y", y(0) - 6).attr("text-anchor", "middle").attr("font-size", 13).text("—");
+      } else {
+        const top = y(v), r = Math.min(4, x.bandwidth() / 2, y(0) - top);
+        gg.append("path").attr("fill", d.id === tr.id ? "var(--ink)" : "var(--muted)").attr("fill-opacity", d.id === tr.id ? 1 : 0.45)
+          .attr("d", `M${x(d.id)},${y(0)}V${top + r}Q${x(d.id)},${top} ${x(d.id) + r},${top}H${x(d.id) + x.bandwidth() - r}Q${x(d.id) + x.bandwidth()},${top} ${x(d.id) + x.bandwidth()},${top + r}V${y(0)}Z`);
+        if (d.id === tr.id) gg.append("text").attr("class", "lbl").attr("x", cx).attr("y", top - 5).attr("text-anchor", "middle").text(f1(v));
+      }
+      gg.append("text").attr("class", "lbl").attr("transform", `translate(${cx},${H - mb + 12}) rotate(-40)`).attr("text-anchor", "end")
+        .attr("font-size", 10.5).text(elTick(d.new));
+      gg.append("rect").attr("x", x(d.id) - x.step() * x.paddingInner() / 2).attr("width", x.step()).attr("y", mt).attr("height", H - mb - mt + 30)
+        .attr("fill", "transparent")
+        .on("mousemove", (ev) => {
+          const m = d.survey && d.survey.metrics;
+          showTip(`<b>${esc(t("segLabel", { old: elShort(d.old), new: elShort(d.new) }))}</b><br>` + (m
+            ? esc(t("tipOv", { r: m.corr === null ? "—" : locale().format(".2f")(m.corr), mad: f1(m.mad), n: m.cells, study: d.survey.study }))
+            : esc(t("noSurvey"))), ev);
+        })
+        .on("mouseleave", hideTip)
+        .on("click", () => { if (d.survey && d.survey.metrics) { hideTip(); select(d.id); } });
+    });
+    host.innerHTML = "";
+    host.appendChild(svg.node());
   }
 
   // ---------------------------------------------------------------- party cards
